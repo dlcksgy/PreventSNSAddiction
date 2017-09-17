@@ -4,10 +4,10 @@
     android:layout_height="match_parent">
 
     <RelativeLayout
+        android:id="@+id/accumulatedTime"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:id="@+id/accumulatedTime">
+        android:orientation="horizontal">
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -15,25 +15,42 @@
             android:textSize = "20sp"
             android:layout_centerVertical="true"/>
         <Button
+            android:id="@+id/option_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="option"
-            android:id="@+id/option_button"
             android:layout_alignParentEnd="true"/>
     </RelativeLayout>
-    <ListView
+    <LinearLayout
+        android:id="@+id/app_and_time"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/accumulatedTime"
-        android:layout_above="@+id/leftTime"
-        android:id="@+id/app_list"/>
+        android:orientation="horizontal"
+        android:layout_below="@id/accumulatedTime">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:text="app"
+            android:paddingStart="15sp"/>
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="accumulated time"
+            android:gravity="center_horizontal"/>
+    </LinearLayout>
+    <ListView
+        android:id="@+id/app_list"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/left_time"
+        android:layout_below="@id/app_and_time"/>
     <LinearLayout
+        android:id="@+id/left_time"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:layout_alignParentBottom="true"
-        android:padding="10sp"
-        android:id="@+id/leftTime" >
+        android:padding="10sp">
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
