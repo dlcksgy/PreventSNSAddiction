@@ -13,12 +13,22 @@ import android.widget.TextView
  * Created by 이은솔 on 2017-09-17.
  * 출처//http://recipes4dev.tistory.com/43
  */
-class ListViewAdapter: BaseAdapter(){
-    var listViewItemList: ArrayList<ListViewItem> = ArrayList<ListViewItem>()
+class ListViewAdapter(items: ArrayList<ListViewItem>): BaseAdapter(){
+    var listViewItemList: ArrayList<ListViewItem> = items
         private set
 
     override fun getCount(): Int {
         return listViewItemList.size
+    }
+
+    //지정 위치의 데이터와 관련된 아이템의 ID를 리턴
+    override fun getItemId(position: Int): Long {
+        return position.toLong()
+    }
+
+    //지정위치의 데이터 반환
+    override fun getItem(position: Int): Any {
+        return listViewItemList.get(position)
     }
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
@@ -43,20 +53,10 @@ class ListViewAdapter: BaseAdapter(){
 
         //아이템 내 각 위젯에 데이터 반영
         iconImageView.setImageDrawable(listViewItem.iconDrawable)
-        nameTextView.setText(listViewItem.appName)
-        timeTextView.setText(listViewItem.accumulatedTime)
+        nameTextView.text = listViewItem.appName
+        timeTextView.text = listViewItem.accumulatedTime
 
         return convertView
-    }
-
-    //지정 위치의 데이터와 관련된 아이템의 ID를 리턴
-    override fun getItemId(position: Int): Long {
-        return position.toLong()
-    }
-
-    //지정위치의 데이터 반환
-    override fun getItem(position: Int): Any {
-        return listViewItemList.get(position)
     }
 
     //아이템 데이터 추가를 위한 함수
@@ -68,5 +68,15 @@ class ListViewAdapter: BaseAdapter(){
         item.accumulatedTime = acTime
 
         listViewItemList.add(item)
+    }
+
+    fun clear(){
+        listViewItemList.clear()
+    }
+
+    //onResume에서 data refresh
+    fun refresh(listViewItem: ArrayList<ListViewItem>){
+        this.listViewItemList = listViewItem
+        notifyDataSetChanged()
     }
 }
