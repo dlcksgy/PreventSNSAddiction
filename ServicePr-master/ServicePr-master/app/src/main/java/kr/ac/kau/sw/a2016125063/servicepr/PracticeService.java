@@ -46,14 +46,20 @@ public class PracticeService extends Service {
         task = new TimerTask(){
             @Override
             public void run(){
+                List<ActivityManager.RunningTaskInfo> info = activityManager.getRunningTasks(7);
+                int size=info.size();
+                Log.i("size", Integer.toString(size));
+                //Log.i("size", info.get(0).topActivity.getPackageName());
+                Log.i("normal", info.get(0).topActivity.getPackageName());
 
-                List<ActivityManager.RunningTaskInfo> info;
+/*
+                 List<ActivityManager.RunningTaskInfo> info;
                 info = activityManager.getRunningTasks(7);
                 for (Iterator iterator = info.iterator(); iterator.hasNext();) {
                     ActivityManager.RunningTaskInfo runningTaskInfo = (ActivityManager.RunningTaskInfo) iterator.next();
                     Log.i("탴탴", activityManager.getRunningTasks(1).get(0).topActivity.getPackageName());
                 }
-
+*/
                 accumulatedTime++;
                 long min = accumulatedTime/60;
                 long sec = accumulatedTime%60;
