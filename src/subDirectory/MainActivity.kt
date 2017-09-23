@@ -36,12 +36,9 @@ class MainActivity : AppCompatActivity() {
 
         for(app:ApplicationInfo in packs){
             //appInfo = ApplicationInfo()
-            //appInfo.loadIcon(pm)
-            //appInfo.mAppName = app.loadLabel(pm)
-            //appInfo.packageName
-            Log.d("onCreate",app.packageName.toString())
-            Log.d("onCreate",app.loadLabel(pm).toString())
-            appDataList.add(ListViewItem(app.loadIcon(pm),app.loadLabel(pm).toString(),app.loadLabel(pm).toString()))
+            //Log.d("onCreate",app.packageName.toString())
+            //Log.d("onCreate",app.loadLabel(pm).toString())
+            appDataList.add(ListViewItem(app.loadIcon(pm), app.loadLabel(pm).toString(), app.packageName.toString()))
 
             //listViewAdapter.addItem(app.loadIcon(pm), app.loadLabel(pm).toString(), "00:00:01")
         }
