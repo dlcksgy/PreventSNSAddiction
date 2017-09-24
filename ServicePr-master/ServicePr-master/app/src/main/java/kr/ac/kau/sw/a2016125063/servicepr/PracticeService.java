@@ -9,6 +9,7 @@ import android.util.Log;
 import android.widget.TextView;
 import android.content.Context;
 
+import java.lang.reflect.Field;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Timer;
@@ -22,9 +23,12 @@ public class PracticeService extends Service {
 
     private TimerTask task;
 
+    private final Context context;
+
 
     public PracticeService() {
         super();
+        context = this;
     }
 
 
@@ -46,12 +50,50 @@ public class PracticeService extends Service {
         task = new TimerTask(){
             @Override
             public void run(){
+
+                final int PROCESS_STATE_TOP = 2;
+
+                try {
+                    Field processStateField = ActivityManager.RunningAppProcessInfo.class.getDeclaredField("processState");
+
+                    List<ActivityManager.RunningAppProcessInfo> processes =
+                            activityManager().getRunningAppProcesses();
+                    for (ActivityManager.RunningAppProcessInfo process : processes) {
+                        if (
+                            // Filters out most non-activity processes
+                                process.importance <= ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND
+                                        &&
+                                        // Filters out processes that are just being
+                                        // _used_ by the process with the activity
+                                        process.importanceReasonCode == 0
+                                ) {
+                            int state = processStateField.getInt(process);
+
+                            if (state == PROCESS_STATE_TOP)
+                                return process.pkgList;
+                        }
+                    }
+                } catch (NoSuchFieldException | IllegalAccessException e) {
+                    throw new RuntimeException(e);
+                }
+
+
+
+
+
+
+
+/*코드1
                 @SuppressWarnings("deprecation")
                 List<ActivityManager.RunningTaskInfo> info = activityManager.getRunningTasks(7);
                 int size=info.size();
                 Log.i("size", Integer.toString(size));
                 //Log.i("size", info.get(0).topActivity.getPackageName());
                 Log.i("normal", info.get(0).topActivity.getPackageName());
+코드1/>
+*/
+
+
 
 /*
                  List<ActivityManager.RunningTaskInfo> info;
