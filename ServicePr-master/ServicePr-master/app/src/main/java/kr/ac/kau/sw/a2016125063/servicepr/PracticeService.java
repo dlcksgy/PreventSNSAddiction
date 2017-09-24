@@ -41,11 +41,12 @@ public class PracticeService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId){
 
-
+        @SuppressWarnings("deprecation")
         final ActivityManager activityManager = (ActivityManager) this.getSystemService(Activity.ACTIVITY_SERVICE);
         task = new TimerTask(){
             @Override
             public void run(){
+                @SuppressWarnings("deprecation")
                 List<ActivityManager.RunningTaskInfo> info = activityManager.getRunningTasks(7);
                 int size=info.size();
                 Log.i("size", Integer.toString(size));
