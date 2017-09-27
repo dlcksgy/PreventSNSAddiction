@@ -23,5 +23,11 @@ class DataBases{
                 isAppLimited+" INTEGER, "+timeLimitHour+" INTEGER, "+
                 timeLimitMinute+" INTEGER, "+timeLimitsecond+" INTEGER, "+
                 initializingHour+" INTEGER, "+initializingMinute+" INTEGER);"
+
+        val appName = "appName"
+        val acTime = "accumulatedTime"
+        val _TABLENAME_TIME = "timeTable"
+        val _CREATE_TIME = "CREATE TABLE IF NOT EXISTS "+_TABLENAME_TIME+
+                "("+appName+" TEXT, "+acTime+" INTEGER);"
     }
 }

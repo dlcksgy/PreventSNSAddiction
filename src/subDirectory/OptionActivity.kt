@@ -26,7 +26,7 @@ class OptionActivity: AppCompatActivity() {
         //db를 다루기위한 dbHelper
         val dbHelper: DBHelper = DBHelper(applicationContext, "Settings.db", null, 1)
         //db가 생성될때 안에 들어있는지 확인
-        Log.d("!!!!!!!!",dbHelper.getElementCount().toString())
+        Log.d("getSettingElementCount",dbHelper.getSettingElementCount().toString())
 
         //activity_option에서 가져올 값
         //설정 체크
@@ -45,7 +45,7 @@ class OptionActivity: AppCompatActivity() {
         Log.d("OptionActivity","values initializing complete")
 
         //Setting Data있으면 데이터 가져와서 레이아웃 초기화 셋팅
-        if(dbHelper.getElementCount() > 0){
+        if(dbHelper.getSettingElementCount() > 0){
             Log.d("layout initialize","DATA EXISTS")
             data = dbHelper.getSettings()//데이터 추출
             //레이아웃 설정
