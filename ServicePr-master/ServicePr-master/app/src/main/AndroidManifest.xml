@@ -31,6 +31,10 @@
             android:name=".PracticeService"
             android:enabled="true"
             android:exported="true"></service>
+        <service
+        android:name=".PracticeService2"
+        android:enabled="true"
+        android:exported="true"></service>
     </application>
     <!--suppress DeprecatedClassUsageInspection -->
     <uses-permission android:name="android.permission.GET_TASKS" />

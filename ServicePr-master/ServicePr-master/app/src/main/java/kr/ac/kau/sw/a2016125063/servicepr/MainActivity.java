@@ -34,7 +34,7 @@ public class MainActivity extends AppCompatActivity {
         serviceButton.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v){
-                Intent intent = new Intent(getApplicationContext(),PracticeService.class);
+                Intent intent = new Intent(getApplicationContext(),PracticeService2.class);
                 intent.putExtra("accumulatedTime",accumulatedTime);
                 startService(intent);
             }

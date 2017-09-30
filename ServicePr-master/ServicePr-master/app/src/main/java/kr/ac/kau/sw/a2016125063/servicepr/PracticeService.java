@@ -45,39 +45,14 @@ public class PracticeService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId){
 
-        @SuppressWarnings("deprecation")
-        final ActivityManager activityManager = (ActivityManager) this.getSystemService(Activity.ACTIVITY_SERVICE);
+        final ActivityManager am = (ActivityManager) this.getSystemService(Activity.ACTIVITY_SERVICE);
+
+        String packageName = am.getRunningTasks(1).get(0).topActivity.getPackageName();
+        Log.v(PracticeService.class.getName(), "Top Activity Name :: "+packageName);
+
         task = new TimerTask(){
             @Override
             public void run(){
-
-                final int PROCESS_STATE_TOP = 2;
-
-                try {
-                    Field processStateField = ActivityManager.RunningAppProcessInfo.class.getDeclaredField("processState");
-
-                    List<ActivityManager.RunningAppProcessInfo> processes =
-                            activityManager().getRunningAppProcesses();
-                    for (ActivityManager.RunningAppProcessInfo process : processes) {
-                        if (
-                            // Filters out most non-activity processes
-                                process.importance <= ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND
-                                        &&
-                                        // Filters out processes that are just being
-                                        // _used_ by the process with the activity
-                                        process.importanceReasonCode == 0
-                                ) {
-                            int state = processStateField.getInt(process);
-
-                            if (state == PROCESS_STATE_TOP)
-                                return process.pkgList;
-                        }
-                    }
-                } catch (NoSuchFieldException | IllegalAccessException e) {
-                    throw new RuntimeException(e);
-                }
-
-
 
 
 

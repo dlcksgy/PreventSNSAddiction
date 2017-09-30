@@ -14,7 +14,7 @@ public class TimeReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent){
         if(intent.getAction().equals("android.intent.action.BOOT_COMPLETED")){
-            ComponentName componentName = new ComponentName(context.getPackageName(), PracticeService.class.getName());
+            ComponentName componentName = new ComponentName(context.getPackageName(), PracticeService2.class.getName());
         }
 
 
