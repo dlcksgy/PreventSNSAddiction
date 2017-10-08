@@ -70,6 +70,9 @@ class MainActivity : AppCompatActivity() {
         */
         listView.setSelection(9)
         listView.smoothScrollToPosition(0)
+
+        val i = Intent(applicationContext, TimeMeasureService::class.java)
+        applicationContext.startService(i)
     }
 
     override fun onResume(){
