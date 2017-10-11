@@ -25,29 +25,33 @@ class MainActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
-        //var adapterList = ArrayList<ListViewAdapter>()
+        //MainActiivty의 그래프를 그리기 위해 필요한 db 관리자
+        val dbHelper: DBHelper = DBHelper(applicationContext, "Settings.db", null, 1)
+
 
         //내 핸드폰 내의 앱 리스트 받아오기(앱 아이콘,패키지명,이름)
         //출처//http://blog.naver.com/pluulove84/100153350054
-        var appDataList = ArrayList<ListViewItem>()
+        var appDataList = ArrayList<ListViewItem>()//커스텀 리스트뷰에 사용
+        var packageNameList = ArrayList<String>()//time 테이블 생성에 사용
         var pm: PackageManager = getPackageManager()
         var packs = pm.getInstalledApplications(PackageManager.GET_DISABLED_COMPONENTS)
-        //var appInfo: ApplicationInfo? = null
 
+        val elementCount = dbHelper.getTimeElementCount()
         for(app:ApplicationInfo in packs){
-            //appInfo = ApplicationInfo()
-            //appInfo.loadIcon(pm)
-            //appInfo.mAppName = app.loadLabel(pm)
-            //appInfo.packageName
-            Log.d("onCreate",app.packageName.toString())
-            Log.d("onCreate",app.loadLabel(pm).toString())
-            appDataList.add(ListViewItem(app.loadIcon(pm),app.loadLabel(pm).toString(),app.loadLabel(pm).toString()))
-
-            //listViewAdapter.addItem(app.loadIcon(pm), app.loadLabel(pm).toString(), "00:00:01")
+            appDataList.add(ListViewItem(app.loadIcon(pm), app.loadLabel(pm).toString(), app.packageName.toString()))
+            if(elementCount == 0) packageNameList.add(app.packageName.toString())
         }
-        //listViewAdapter
-
         listViewAdapter.clear()
+
+        //time table이 비어있으면 초기화 해줌
+        if(elementCount == 0) dbHelper.initializeTime(packageNameList)
+        //time table 테스트
+        var testList = ArrayList<Pair<String,Int>>()
+        testList.add(Pair("com.dbs.mthink.kau",1))
+        dbHelper.updateTime(testList)
+        Log.d("Time table test",dbHelper.getTime("com.dbs.mthink.kau").toString())
+
+        //커스텀 리스트뷰 만들기
         //출처//http://recipes4dev.tistory.com/43
         //listView 설정
         var listView: ListView = findViewById(R.id.app_list) as ListView
@@ -57,7 +61,6 @@ class MainActivity : AppCompatActivity() {
         //어뎁터 설정
         listView.adapter = listViewAdapter
         //아이템 추가
-        //listViewAdapter.addItem(ContextCompat.getDrawable(this,R.drawable.ic_action_name),"00:00:01")
         listViewAdapter.notifyDataSetChanged()
 
         /*임시방편으로 버그 해결
@@ -67,6 +70,9 @@ class MainActivity : AppCompatActivity() {
         */
         listView.setSelection(9)
         listView.smoothScrollToPosition(0)
+
+        val i = Intent(applicationContext, TimeMeasureService::class.java)
+        applicationContext.startService(i)
     }
 
     override fun onResume(){

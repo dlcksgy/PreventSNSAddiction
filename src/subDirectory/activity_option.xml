@@ -13,9 +13,9 @@
             android:textSize="25sp"
             android:paddingStart="10sp"/>
         <CheckBox
+            android:id="@+id/time_limit_checkBox"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/time_limit_checkBox"/>
+            android:layout_height="wrap_content" />
     </LinearLayout>
     <LinearLayout
         android:layout_width="match_parent"
@@ -23,6 +23,7 @@
         android:orientation="horizontal"
         android:paddingBottom="20sp">
         <EditText
+            android:id="@+id/limit_hour"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:hint="hour"
@@ -30,6 +31,7 @@
             android:layout_weight="1"
             android:inputType="number"/>
         <EditText
+            android:id="@+id/limit_minute"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:hint="min"
@@ -37,6 +39,7 @@
             android:layout_weight="1"
             android:inputType="number"/>
         <EditText
+            android:id="@+id/limit_second"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:hint="sec"
@@ -51,10 +54,10 @@
         android:textSize="20sp"
         android:paddingStart="10sp"/>
     <TimePicker
+        android:id="@+id/timePicker"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:timePickerMode="spinner"
-        android:id="@+id/limited_time_timePicker"
         android:paddingBottom="20sp"/>
     <LinearLayout
         android:layout_width="match_parent"
@@ -68,9 +71,9 @@
             android:textSize="20sp"
             android:paddingStart="10sp"/>
         <CheckBox
+            android:id="@+id/application_limit_checkBox"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/limit_setting_checkBox"/>
+            android:layout_height="wrap_content" />
     </LinearLayout>
     <LinearLayout
         android:layout_width="match_parent"
@@ -83,8 +86,30 @@
             android:textSize="20sp"
             android:paddingStart="10sp"/>
         <CheckBox
+            android:id="@+id/selfie_upload_checkBox"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/selfie_upload_checkBox"/>
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingTop="20sp">
+        <Button
+            android:id="@+id/ok_button"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="ok"
+            android:textSize="20sp"
+            android:layout_weight="1"
+            android:gravity="center"/>
+        <Button
+            android:id="@+id/cancel_button"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="cancel"
+            android:textSize="20sp"
+            android:layout_weight="1"
+            android:gravity="center"/>
     </LinearLayout>
 </LinearLayout>
