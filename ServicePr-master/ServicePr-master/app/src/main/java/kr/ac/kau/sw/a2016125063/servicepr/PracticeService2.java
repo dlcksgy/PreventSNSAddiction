@@ -50,8 +50,9 @@ public class PracticeService2 extends Service {
 
         while(true){
             ActivityManager am = (ActivityManager) this.getSystemService(ACTIVITY_SERVICE);
-            List<ActivityManager.RunningTaskInfo> taskInfo = am.getRunningTasks(1);
+            List<ActivityManager.RunningTaskInfo> taskInfo = am.getRunningTasks(7);
             Log.d("topActivity", "CURRENT Activity ::" + taskInfo.get(0).topActivity.getClassName());
+            Log.d("ActivityNum", Integer.toString(taskInfo.size()));
             ComponentName componentInfo = taskInfo.get(0).topActivity;
             componentInfo.getPackageName();
 
