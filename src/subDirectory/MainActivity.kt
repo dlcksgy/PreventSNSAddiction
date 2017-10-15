@@ -3,6 +3,7 @@ package kr.ac.kau.sw.a2016125063.preventsnsaddiction
 import android.content.Intent
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
+import android.os.Build
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.support.v4.content.ContextCompat
@@ -45,11 +46,6 @@ class MainActivity : AppCompatActivity() {
 
         //time table이 비어있으면 초기화 해줌
         if(elementCount == 0) dbHelper.initializeTime(packageNameList)
-        //time table 테스트
-        var testList = ArrayList<Pair<String,Int>>()
-        testList.add(Pair("com.dbs.mthink.kau",1))
-        dbHelper.updateTime(testList)
-        Log.d("Time table test",dbHelper.getTime("com.dbs.mthink.kau").toString())
 
         //커스텀 리스트뷰 만들기
         //출처//http://recipes4dev.tistory.com/43
@@ -73,6 +69,11 @@ class MainActivity : AppCompatActivity() {
 
         val i = Intent(applicationContext, TimeMeasureService::class.java)
         applicationContext.startService(i)
+        Log.d("check", Build.VERSION.RELEASE.toString())
+
+        //val i = Intent("flag")
+        //i.addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES)
+        //sendBroadcast(i)
     }
 
     override fun onResume(){

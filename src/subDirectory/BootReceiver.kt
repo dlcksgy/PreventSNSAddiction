@@ -9,10 +9,11 @@ import android.util.Log
  * Created by 이은솔 on 2017-09-28.
  * 출처// http://ccdev.tistory.com/27
  */
-class BootReceiver: BroadcastReceiver() {
+class BootReceiver: BroadcastReceiver() {//작동 안하는 듯
     override fun onReceive(context: Context?, intent: Intent?) {
         Log.d("BroadcastReceiver","onReceive")
-        val action = intent?.action
+        val action = intent?.getAction()
+        Log.d("BroadcastReceiverAction",action)
         if(action.equals(Intent.ACTION_BOOT_COMPLETED)){
             val i = Intent(context, TimeMeasureService::class.java)
             context?.startService(i)
@@ -27,6 +28,12 @@ class BootReceiver: BroadcastReceiver() {
             val i = Intent(context, TimeMeasureService::class.java)
             context?.startService(i)
             Log.d("BootReceiver","PACKAGE_REPLACED")
+        }
+        val i = Intent(context, TimeMeasureService::class.java)
+        context?.startService(i)
+        Log.d("BootReceiver","just started")
+        if(action.equals("flag")){
+            Log.d("broadcast","flag catched")
         }
     }
 }
