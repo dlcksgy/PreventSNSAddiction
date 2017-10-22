@@ -18,6 +18,12 @@
             </intent-filter>
         </activity>
 
+
+        <service
+            android:name=".UsageService"
+            />
+
+
     </application>
 
     <uses-permission android:name="android.permission.PACKAGE_USAGE_STATS" tools:ignore="ProtectedPermissions" />

@@ -22,7 +22,7 @@ import java.util.*
 /**
  * Created by Arduino on 2017-10-20.
  */
-class UsageSercive : Service(){
+class UsageService : Service(){
 
     override fun onBind(p0: Intent?): IBinder {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
@@ -59,10 +59,10 @@ class UsageSercive : Service(){
                 for (usageStats in stats) {
                     runningTask.put(usageStats.lastTimeUsed, usageStats)
 
-                    Log.e(TAG, "===== CheckPhoneState isRooting packageName = " + usageStats.packageName)
+                    Log.i(TAG, "===== CheckPhoneState isRooting packageName = " + usageStats.packageName)
                 }
             } else {
-                Log.e(TAG, "===== CheckPhoneState isRooting stats is NULL")
+                Log.i(TAG, "===== CheckPhoneState isRooting stats is NULL")
             }
         }
 
