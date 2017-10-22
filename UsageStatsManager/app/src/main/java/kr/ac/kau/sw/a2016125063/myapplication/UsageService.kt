@@ -58,8 +58,10 @@ class UsageService : Service(){
                 val runningTask = TreeMap<Long, UsageStats>()
                 for (usageStats in stats) {
                     runningTask.put(usageStats.lastTimeUsed, usageStats)
-
-                    Log.i(TAG, "===== CheckPhoneState isRooting packageName = " + usageStats.packageName)
+                                                                                                            //사용시간 측정값 로그로 출력
+                    Log.i(TAG, "===== CheckPhoneState isRooting packageName = "
+                            + usageStats.packageName
+                            + "  # Time measured: " + usageStats.getTotalTimeInForeground()/1000 + "sec")
                 }
             } else {
                 Log.i(TAG, "===== CheckPhoneState isRooting stats is NULL")
