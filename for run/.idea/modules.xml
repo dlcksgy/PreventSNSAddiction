@@ -3,7 +3,9 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://F:\Android3.0_Kotlin\PreventSNSAddiction\for run\app\app.iml" filepath="F:\Android3.0_Kotlin\PreventSNSAddiction\for run\app\app.iml" />
       <module fileurl="file://$PROJECT_DIR$/for run.iml" filepath="$PROJECT_DIR$/for run.iml" />
+      <module fileurl="file://F:\Android3.0_Kotlin\PreventSNSAddiction\for run\for run.iml" filepath="F:\Android3.0_Kotlin\PreventSNSAddiction\for run\for run.iml" />
     </modules>
   </component>
 </project>

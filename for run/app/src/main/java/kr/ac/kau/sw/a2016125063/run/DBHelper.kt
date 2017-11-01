@@ -87,14 +87,12 @@ class DBHelper(context: Context, name: String, factory: SQLiteDatabase.CursorFac
         db.close()
     }
 
-    fun updateTime(data: ArrayList<Pair<String,Int>>){
+    fun updateTime(data: Pair<String,Int>){
         //바뀐 시간들 업데이트
         val db: SQLiteDatabase = writableDatabase
-        for(i: Pair<String,Int> in data){
-            db.execSQL("UPDATE "+DataBases._TABLENAME_TIME+" SET "+
-                    DataBases.acTime+" = "+i.second+" WHERE "+DataBases.appName+" = '"+i.first+"';")
-        }
-        Log.d("updateTime","time changed sucessfully")
+        db.execSQL("UPDATE "+DataBases._TABLENAME_TIME+" SET "+
+                DataBases.acTime+" = "+data.second+" WHERE "+DataBases.appName+" = '"+data.first+"';")
+        Log.d("updateTime","time changed sucessfully -> "+data.second.toString())
         db.close()
     }
 
@@ -103,7 +101,6 @@ class DBHelper(context: Context, name: String, factory: SQLiteDatabase.CursorFac
         var cursor: Cursor = db.rawQuery("SELECT "+DataBases.acTime+" FROM "+DataBases._TABLENAME_TIME+
                 " WHERE "+DataBases.appName+" = '"+pakageName+"'",null)
         cursor.moveToNext()
-        Log.d("getTime",cursor.columnCount.toString())
         return cursor.getInt(0)
     }
 
