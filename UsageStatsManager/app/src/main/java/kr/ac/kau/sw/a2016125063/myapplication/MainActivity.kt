@@ -1,21 +1,15 @@
 package kr.ac.kau.sw.a2016125063.myapplication
 
-import android.app.AppOpsManager
-import android.content.Context
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.content.Context.APP_OPS_SERVICE
 import android.R.attr.mode
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.provider.MediaStore
-import android.support.v4.content.PermissionChecker.checkCallingOrSelfPermission
-import android.view.View
-import android.widget.Button
 import kotlinx.android.synthetic.main.activity_main.*
 import android.R.attr.data
-
-
+import android.util.Log
+import kr.ac.kau.sw.a2016125063.myapplication.R.id.*
 
 
 class MainActivity : AppCompatActivity() {
@@ -24,16 +18,24 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        cameraButton.setOnClickListener(View.OnClickListener {
+        cameraButton.setOnClickListener{
             intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
             startActivityForResult(intent,1)
 
-        })
+        }
 
-        serviceButton.setOnClickListener(View.OnClickListener {
+        serviceButton.setOnClickListener{
+            Log.d("ServiceButton : ","OnClickListener")
             val intent = Intent(applicationContext, UsageService::class.java)
             startService(intent)
-        })
+        }
+
+
+        appLockServiceButton.setOnClickListener{
+            Log.d("LockButton : ","OnClickListener")
+            val intent = Intent(applicationContext, ActivityManagerService::class.java)
+            startService(intent)
+        }
 
     }
 
