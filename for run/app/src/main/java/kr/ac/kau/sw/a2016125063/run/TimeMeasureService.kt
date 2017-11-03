@@ -36,7 +36,7 @@ var time: Int = 0//어플시작 시간 측정
             Log.d("timer",count.toString())
             count++
 
-            val am = getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+            val am = applicationContext.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
             val info: List<ActivityManager.RunningTaskInfo> = am.getRunningTasks(1)
             val topActivity: ComponentName = info.get(0).topActivity
             val activityName = topActivity.packageName

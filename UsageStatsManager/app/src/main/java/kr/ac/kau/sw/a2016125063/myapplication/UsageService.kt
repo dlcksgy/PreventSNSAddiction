@@ -17,7 +17,7 @@ import android.content.Context.APP_OPS_SERVICE
 import android.os.IBinder
 import android.util.Log
 import java.util.*
-
+import android.provider.Settings
 
 /**
  * Created by Arduino on 2017-10-20.
@@ -28,25 +28,27 @@ class UsageService : Service(){
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-
+    override fun onCreate() {
+        super.onCreate()
         // GET_USAGE_STATS 권한 확인
         var granted = false
         val appOps = this.getSystemService(Context.APP_OPS_SERVICE) as AppOpsManager
         val mode = appOps.checkOpNoThrow(AppOpsManager.OPSTR_GET_USAGE_STATS, android.os.Process.myUid(), this.getPackageName())
 
-        if (mode == AppOpsManager.MODE_DEFAULT) {
-            granted = this.checkCallingOrSelfPermission(android.Manifest.permission.PACKAGE_USAGE_STATS) === PackageManager.PERMISSION_GRANTED
+        granted = if (mode == AppOpsManager.MODE_DEFAULT) {
+            this.checkCallingOrSelfPermission(android.Manifest.permission.PACKAGE_USAGE_STATS) == PackageManager.PERMISSION_GRANTED
         } else {
-            granted = mode == AppOpsManager.MODE_ALLOWED
+            mode == AppOpsManager.MODE_ALLOWED
         }
 
         Log.e(TAG, "===== CheckPhoneState isRooting granted = " + granted)
 
+        //granted = false
         if (granted == false) {
             // 권한이 없을 경우 권한 요구 페이지 이동
-            val intent = Intent(android.provider.Settings.ACTION_USAGE_ACCESS_SETTINGS)
-            this.startActivity(intent)
+            val intent = Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS)
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            startActivity(intent)
         }
 
         if (!false) {
@@ -55,18 +57,33 @@ class UsageService : Service(){
             val time = System.currentTimeMillis()
             val stats = usage.queryUsageStats(UsageStatsManager.INTERVAL_DAILY, time - 1000 * 1000, time)
             if (stats != null) {
+                Log.i(TAG, "===== CheckPhoneState isRooting stats is not NULL")
+                Log.d("stats !!!!!",stats.toString())
                 val runningTask = TreeMap<Long, UsageStats>()
                 for (usageStats in stats) {
                     runningTask.put(usageStats.lastTimeUsed, usageStats)
-                                                                                                            //사용시간 측정값 로그로 출력
-                    Log.i(TAG, "===== CheckPhoneState isRooting packageName = "
+                    //사용시간 측정값 로그로 출력
+                    /*Log.i(TAG, "==== packageName = "
                             + usageStats.packageName
-                            + "  # Time measured: " + usageStats.getTotalTimeInForeground()/1000 + "sec")
+                            + "  # Time measured: " + usageStats.getTotalTimeInForeground() + "millisec")*/
                 }
+
+                val sortedList = stats.toList().sortedBy{ it.packageName }
+                Log.d("sortedList size",sortedList.size.toString())
+                for(i in sortedList){
+                    Log.i(TAG, "==== packageName = "
+                            + i.packageName
+                            + "  # Time measured: " + i.getTotalTimeInForeground() + "millisec")
+                }
+
             } else {
                 Log.i(TAG, "===== CheckPhoneState isRooting stats is NULL")
             }
         }
+    }
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+
+
 
 
 

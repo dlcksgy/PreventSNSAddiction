@@ -24,8 +24,11 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        val intent = Intent(applicationContext, UsageService::class.java)
+        startService(intent)
+
         cameraButton.setOnClickListener(View.OnClickListener {
-            intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+            val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
             startActivityForResult(intent,1)
 
         })
