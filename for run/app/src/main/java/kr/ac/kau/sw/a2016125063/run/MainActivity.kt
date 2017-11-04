@@ -222,7 +222,7 @@ class MainActivity : AppCompatActivity() {
                 leftTimeTextview.setText("00:00:00")
             }
         }else{//시간제한이 풀려 있을 때 누적시간을 보여줌
-            signTime.setText("누적 시간")
+            signTime.setText("총 누적 시간")
             leftTimeTextview.setText(makeStringTime((spentTime/1000).toInt()))
         }
     }
