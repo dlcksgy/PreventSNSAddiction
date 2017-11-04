@@ -17,14 +17,25 @@ import android.provider.Settings
 import android.util.Log
 import android.widget.Button
 import android.widget.ListView
+import android.widget.TextView
 import java.util.*
 
 class MainActivity : AppCompatActivity() {
-
+    //custom adapter
     var listViewAdapter: ListViewAdapter = ListViewAdapter(ArrayList<ListViewItem>())
+    //시간 제한한 앱들의 누적 사용 시간
+    var spentTime: Long = 0
+
+    fun makeStringTime(sec: Int): String{
+        val hour = if(sec/3600 >= 10) (sec/3600).toString() else "0"+(sec/3600).toString()
+        val minute = if((sec/60)%60 >= 10) ((sec/60)%60).toString() else "0"+((sec/60)%60).toString()
+        val second = if(sec%60 >= 10) (sec%60).toString() else "0"+(sec%60).toString()
+        val stringTime = hour+":"+minute+":"+second
+        return stringTime
+    }
 
     fun tableAndItem(): ArrayList<ListViewItem>{
-        //MainActiivty의 그래프를 그리기 위해 필요한 db 관리자
+        //DB접근에 필요한 db 관리자
         val dbHelper: DBHelper = DBHelper(applicationContext, "Settings.db", null, 1)
 
         //내 핸드폰 내의 앱 리스트 받아오기(앱 아이콘,패키지명,이름)
@@ -51,8 +62,7 @@ class MainActivity : AppCompatActivity() {
 
         /*
         * 시간 많은 순으로 정렬하기
-        * DB 손봐서 누적시간 데이터 없이 앱 목록 패키지 명만 입력하기
-        * option DB에 접속해서 앱 시간 제한이 걸려있고 시간이 정해져 있으면 그 시간과 현재까지의 누적시간을 비교하여 남은시간 바꿔주기
+        * DB 손봐서 누적시간 데이터 없이 앱 목록 패키지 명만 입력하기, DB 정돈
         * 여유가 된다면 그래프 그려넣기
         */
 
@@ -63,12 +73,12 @@ class MainActivity : AppCompatActivity() {
         if (stats != null) {
             Log.i(ContentValues.TAG, "===== CheckPhoneState isRooting stats is not NULL")
             Log.d("stats !!!!!",stats.toString())
-
+            //누적시간 초기화
+            spentTime = 0L
             //사용된 앱 목록만 집어넣기
             var usedApps: ArrayList<UsageStats> = ArrayList<UsageStats>()
-            var allAccumulatedTime: Long = 0
             for (usageStats in stats) {
-                allAccumulatedTime += usageStats.totalTimeInForeground
+                spentTime += usageStats.totalTimeInForeground
                 //Log.d("last time",usageStats.lastTimeUsed.toString())
                 //마지막에 사용된 시간, 총 사용시간
                 print("last time used --> ${usageStats.lastTimeUsed}  ")
@@ -82,7 +92,7 @@ class MainActivity : AppCompatActivity() {
                         + usageStats.packageName
                         + "  # Time measured: " + usageStats.getTotalTimeInForeground() + "millisec")*/
             }
-            Log.d("allAccumulatedTime",(allAccumulatedTime/1000).toString()+" sec")
+            Log.d("allAccumulatedTime",(spentTime/1000).toString()+" sec")
             //누적 사용시간으로 정렬
             usedApps.sortBy { it.packageName }
             Log.d("used App count ",usedApps.size.toString())
@@ -95,11 +105,7 @@ class MainActivity : AppCompatActivity() {
                 //패키지명이 같을 때
                 if(usedApps[i].packageName == appDataList[k].accumulatedTime){
                     val acTime = ((usedApps[i].totalTimeInForeground)/1000L).toInt()
-                    val hour = if(acTime/3600 > 10) (acTime/3600).toString() else "0"+(acTime/3600).toString()
-                    val minute = if((acTime/60)%60 > 10) ((acTime/60)%60).toString() else "0"+((acTime/60)%60).toString()
-                    val second = if(acTime%60 > 10) (acTime%60).toString() else "0"+(acTime%60).toString()
-                    val time = hour+":"+minute+":"+second
-                    appDataList[k].accumulatedTime = time
+                    appDataList[k].accumulatedTime = makeStringTime(acTime)
                     sortedList.add(appDataList[k])
                     i -= 1; k -= 1
                 }else{//패키지명이 다를 때
@@ -197,5 +203,27 @@ class MainActivity : AppCompatActivity() {
         */
         listView.setSelection(9)
         listView.smoothScrollToPosition(0)
+
+        //시간을 가리키는 글
+        val signTime = findViewById<TextView>(R.id.left_or_acculumated)
+        //남은 시간 textview
+        val leftTimeTextview = findViewById<TextView>(R.id.calculated_left_time)
+        //DB접근에 필요한 db 관리자
+        val dbHelper: DBHelper = DBHelper(applicationContext, "Settings.db", null, 1)
+        //option 값 1.시간제한 셋팅 2.셀카제한 3.앱제한 4.시간 5.분 6.초 7.초기화 시 8.초기화 분
+        val optionValue = dbHelper.getSettings()
+        if(optionValue[0] == 1){//시간 제한이 걸려 있을 때
+            signTime.setText("남은 시간")
+            val limitTime = optionValue[3]*3600 + optionValue[4]*60 + optionValue[5]
+            val leftTime = limitTime - spentTime.toInt()
+            if(leftTime > 0){//시간이 남아 있다면
+                leftTimeTextview.setText(makeStringTime(leftTime))
+            }else{//시간을 다 썼다면
+                leftTimeTextview.setText("00:00:00")
+            }
+        }else{//시간제한이 풀려 있을 때 누적시간을 보여줌
+            signTime.setText("누적 시간")
+            leftTimeTextview.setText(makeStringTime((spentTime/1000).toInt()))
+        }
     }
 }
