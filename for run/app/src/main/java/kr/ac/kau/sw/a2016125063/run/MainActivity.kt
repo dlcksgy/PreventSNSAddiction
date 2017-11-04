@@ -14,12 +14,9 @@ import android.os.Build
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.provider.Settings
-import android.support.v4.content.ContextCompat
 import android.util.Log
-import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.ListView
-import java.lang.reflect.Array
 import java.util.*
 
 class MainActivity : AppCompatActivity() {
@@ -37,6 +34,9 @@ class MainActivity : AppCompatActivity() {
         val pm: PackageManager = getPackageManager()
         val packs = pm.getInstalledApplications(PackageManager.GET_DISABLED_COMPONENTS)
 
+        //모두 정돈된 데이터가 들어갈 리스트 (이 함수의 반환값)
+        var sortedList = ArrayList<ListViewItem>()
+
         //time table이 없으면 만들고 초기화
         if(dbHelper.getTimeElementCount() == 0){
             for(app:ApplicationInfo in packs){
@@ -45,18 +45,11 @@ class MainActivity : AppCompatActivity() {
             dbHelper.initializeTime(packageNameList)
         }
         for(app:ApplicationInfo in packs){
-            val acTime = dbHelper.getTime(app.packageName.toString())
-            val hour = if((acTime/3600)%10 > 0) (acTime/3600).toString() else "0"+(acTime/3600).toString()
-            val minute = if(((acTime/60)%60)%10 > 0) ((acTime/60)%60).toString() else "0"+((acTime/60)%60).toString()
-            val second = if((acTime%60)%10 > 0) (acTime%60).toString() else "0"+(acTime%60).toString()
-            val time = hour+":"+minute+":"+second
             appDataList.add(ListViewItem(app.loadIcon(pm), app.loadLabel(pm).toString(), app.packageName.toString()))
         }
 
 
         /*
-        * 시간 0초인것들 골라 없애기
-        * usageStatsManager의 결과로 listView 채우기
         * 시간 많은 순으로 정렬하기
         * DB 손봐서 누적시간 데이터 없이 앱 목록 패키지 명만 입력하기
         * option DB에 접속해서 앱 시간 제한이 걸려있고 시간이 정해져 있으면 그 시간과 현재까지의 누적시간을 비교하여 남은시간 바꿔주기
@@ -70,43 +63,69 @@ class MainActivity : AppCompatActivity() {
         if (stats != null) {
             Log.i(ContentValues.TAG, "===== CheckPhoneState isRooting stats is not NULL")
             Log.d("stats !!!!!",stats.toString())
-            val runningTask = TreeMap<Long, UsageStats>()
+
+            //사용된 앱 목록만 집어넣기
+            var usedApps: ArrayList<UsageStats> = ArrayList<UsageStats>()
             var allAccumulatedTime: Long = 0
             for (usageStats in stats) {
-                runningTask.put(usageStats.lastTimeUsed, usageStats)
                 allAccumulatedTime += usageStats.totalTimeInForeground
+                //Log.d("last time",usageStats.lastTimeUsed.toString())
+                //마지막에 사용된 시간, 총 사용시간
+                print("last time used --> ${usageStats.lastTimeUsed}  ")
+                println("///  used time --> ${usageStats.totalTimeInForeground/1000L}")
+                //사용 시간 0인 것들 골라내기
+                if(usageStats.totalTimeInForeground != 0L){
+                    usedApps.add(usageStats)
+                }
                 //사용시간 측정값 로그로 출력
                 /*Log.i(TAG, "==== packageName = "
                         + usageStats.packageName
                         + "  # Time measured: " + usageStats.getTotalTimeInForeground() + "millisec")*/
             }
             Log.d("allAccumulatedTime",(allAccumulatedTime/1000).toString()+" sec")
-
-            val sortedList = stats.toList().sortedBy{ it.packageName }
-            Log.d("sortedList size (Usage)",sortedList.size.toString())
-            /*
-            for(i in sortedList){
-                Log.i(ContentValues.TAG, "==== packageName = "
-                        + i.packageName
-                        + "  # Time measured: " + i.getTotalTimeInForeground() + "millisec")
+            //누적 사용시간으로 정렬
+            usedApps.sortBy { it.packageName }
+            Log.d("used App count ",usedApps.size.toString())
+            //appDataList 정렬 뒤 비교하면서 패키지를 찾고 시간을 넣어줌.
+            appDataList.sortBy { it.accumulatedTime } //일단은 acTime에 package이름이 들어있음
+            //비교, 입력
+            var i:Int = usedApps.size-1
+            var k:Int = appDataList.size-1
+            while(i>0 && k>0){
+                //패키지명이 같을 때
+                if(usedApps[i].packageName == appDataList[k].accumulatedTime){
+                    val acTime = ((usedApps[i].totalTimeInForeground)/1000L).toInt()
+                    val hour = if(acTime/3600 > 10) (acTime/3600).toString() else "0"+(acTime/3600).toString()
+                    val minute = if((acTime/60)%60 > 10) ((acTime/60)%60).toString() else "0"+((acTime/60)%60).toString()
+                    val second = if(acTime%60 > 10) (acTime%60).toString() else "0"+(acTime%60).toString()
+                    val time = hour+":"+minute+":"+second
+                    appDataList[k].accumulatedTime = time
+                    sortedList.add(appDataList[k])
+                    i -= 1; k -= 1
+                }else{//패키지명이 다를 때
+                    k -= 1
+                }
             }
-            */
+            //어플 이름으로 정렬
+            sortedList.sortBy { it.appName }
         } else {
             Log.i(ContentValues.TAG, "===== CheckPhoneState isRooting stats is NULL")
         }
 
 
         //출처//https://www.programiz.com/kotlin-programming/examples/sort-custom-objects-property
+        /*
         var sortedList = appDataList.sortedWith(compareBy({it.accumulatedTime}))
         for(i:ListViewItem in sortedList){
             Log.d("sortedList",i.accumulatedTime)
         }
         Log.d("sortedList size (app)",sortedList.size.toString())
+        */
 
-        appDataList.find { it.accumulatedTime != "00:00:00" }
+        //appDataList.find { it.accumulatedTime != "00:00:00" }
+        //appDataList.sortBy { it.appName }
 
-        appDataList.sortBy { it.appName }
-        return appDataList
+        return sortedList
     }
 
     fun isServiceRunningCheck(): Boolean{
@@ -150,7 +169,7 @@ class MainActivity : AppCompatActivity() {
         //서비스가 작동중이면 서비스 추가x
         if(isServiceRunningCheck() == false) {
             val i = Intent(applicationContext, TimeMeasureService::class.java)
-            applicationContext.startService(i)
+            //applicationContext.startService(i)
             Log.d("API checking", Build.VERSION.RELEASE.toString())
         }
     }
