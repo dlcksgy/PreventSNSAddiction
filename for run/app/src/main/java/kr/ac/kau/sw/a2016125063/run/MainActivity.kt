@@ -84,7 +84,7 @@ class MainActivity : AppCompatActivity() {
                 print("last time used --> ${usageStats.lastTimeUsed}  ")
                 println("///  used time --> ${usageStats.totalTimeInForeground/1000L}")
                 //사용 시간 0인 것들 골라내기
-                if(usageStats.totalTimeInForeground != 0L){
+                if(usageStats.totalTimeInForeground >= 1000L){
                     usedApps.add(usageStats)
                 }
                 //사용시간 측정값 로그로 출력
@@ -139,7 +139,7 @@ class MainActivity : AppCompatActivity() {
         //출처: http://darkcher.tistory.com/184
         val manager: ActivityManager = this.getSystemService(Activity.ACTIVITY_SERVICE) as ActivityManager
         for (service: ActivityManager.RunningServiceInfo in manager.getRunningServices(Integer.MAX_VALUE)) {
-            if("kr.ac.kau.sw.a2016125063.preventsnsaddiction.TimeMeasureService".equals(service.service.className.toString())){
+            if("kr.ac.kau.sw.a2016125063.preventsnsaddiction.TimeMeasureService" == service.service.className.toString()){
                 return true
             }
         }
