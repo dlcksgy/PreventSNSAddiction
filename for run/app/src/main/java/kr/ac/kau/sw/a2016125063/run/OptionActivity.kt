@@ -1,6 +1,10 @@
 package kr.ac.kau.sw.a2016125063.preventsnsaddiction
 
+import android.app.AlertDialog
+import android.content.DialogInterface
 import android.content.Intent
+import android.content.pm.ApplicationInfo
+import android.content.pm.PackageManager
 import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
@@ -9,15 +13,20 @@ import android.os.PersistableBundle
 import android.support.v7.app.AppCompatActivity
 import android.text.Editable
 import android.util.Log
-import android.widget.Button
-import android.widget.CheckBox
-import android.widget.EditText
-import android.widget.TimePicker
+import android.view.LayoutInflater
+import android.view.View
+import android.widget.*
+import kr.ac.kau.sw.a2016125063.run.DialogAdapter
+import kr.ac.kau.sw.a2016125063.run.DialogItem
+import java.util.ArrayList
 
 /**
  * Created by 이은솔 on 2017-09-11.
  */
 class OptionActivity: AppCompatActivity() {
+    //custom adapter
+    var dialogAdapter: DialogAdapter = DialogAdapter(ArrayList<DialogItem>())
+
     //DB에 넣을 데이터 배열
     var data = Array<Int>(8, {0})
 
@@ -74,6 +83,21 @@ class OptionActivity: AppCompatActivity() {
             }
         }
         Log.d("OptionActivity","layout initialzing complete")
+
+
+        //앱 제한 텍스트 뷰
+        val appLimiting = findViewById<TextView>(R.id.time_limit_dialog)
+        appLimiting.setOnClickListener {
+            Log.d("setOnClickListener","app limit textview is clicked")
+            createDialog()
+        }
+
+        /*
+        * alertDialog
+        * custom listview
+        * DB
+        */
+
     }
 
     override fun onBackPressed() {//백버튼으로 값 저장하기
@@ -119,5 +143,106 @@ class OptionActivity: AppCompatActivity() {
         dbHelper.getSettings()
 
         super.onBackPressed()
+    }
+
+    //다이얼 로그를 만듬
+    fun createDialog(){
+        //설치된 패키지 목록 뽑기
+        //출처//http://www.masterqna.com/android/23456/%EC%84%A4%EC%B9%98%EB%90%9C-%ED%8C%A8%ED%82%A4%EC%A7%80-%EB%AA%A9%EB%A1%9D-%EB%BD%91%EB%8A%94-%EB%B0%A9%EB%B2%95
+        var appDataList = ArrayList<DialogItem>()//커스텀 리스트뷰에 사용
+        val pm: PackageManager = getPackageManager()
+        val packs = pm.getInstalledApplications(PackageManager.GET_META_DATA)
+        for(app: ApplicationInfo in packs){
+            val intent: Intent? = packageManager.getLaunchIntentForPackage(app.packageName)
+            if(intent != null) {
+                appDataList.add(DialogItem(app.loadIcon(pm), app.loadLabel(pm).toString()))
+                //Log.d("app list dialog",app.packageName.toString())
+                print("app list dialog  "+app.packageName.toString()+"    ")
+                println(app.loadLabel(pm).toString())
+            }
+        }
+        Log.d("apps element count",appDataList.size.toString())
+
+
+        //커스텀 리스트뷰 만들기
+        //출처//http://recipes4dev.tistory.com/43
+        //listView 설정
+        //var listView = findViewById<ListView>(R.id.dialog_app_listview)
+        //어뎁터 생성
+        dialogAdapter = DialogAdapter(appDataList)
+        //어뎁터 설정
+        //listView.adapter = dialogAdapter
+
+        /*
+        //출처//https://stackoverflow.com/questions/10932832/multiple-choice-alertdialog-with-custom-adapter
+        var builder: AlertDialog = AlertDialog.Builder(baseContext)
+                .setTitle("Title")
+                .setAdapter(dialogAdapter,null)
+                .setPositiveButton("ok",null)
+                .setNegativeButton("no",null)
+                .create()
+
+        builder.listView.itemsCanFocus = false
+        builder.listView.choiceMode = ListView.CHOICE_MODE_MULTIPLE
+        builder.listView.onItemClickListener = object:AdapterView.OnItemClickListener{
+            override fun onItemClick(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                println("clicked "+id)
+                var textView: CheckedTextView = view as CheckedTextView
+                if(textView.isChecked){
+                    println("is checked")
+                }else{
+                    println("is unchecked")
+                }
+            }
+        }
+
+        builder.show()
+        */
+        //출처//https://stackoverflow.com/questions/13504781/custom-listview-inside-a-dialog-in-android
+        val builder: AlertDialog.Builder = AlertDialog.Builder(this)
+        builder.setTitle("접근 제한 목록")
+        builder.setPositiveButton("설정",null)
+        builder.setNegativeButton("취소",null)
+
+        var inflater: LayoutInflater = layoutInflater
+        val popUpLayout: View = inflater.inflate(R.layout.dialog_listview, null)
+        builder.setView(popUpLayout)
+
+        var dialog: AlertDialog = builder.create()
+        //dialog.show()
+
+        val listView = popUpLayout.findViewById<ListView>(R.id.dialog_app_listview)
+        listView.adapter = DialogAdapter(appDataList)
+
+        dialog.show()
+        //출처//
+        /*
+        listView.choiceMode = ListView.CHOICE_MODE_MULTIPLE
+        listView.setOnItemClickListener(object: AdapterView.OnItemClickListener{
+            override fun onItemClick(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                var checkedTextView: CheckedTextView = view as CheckedTextView
+                if(checkedTextView.isChecked){
+                    println(id.toString()+" is checked")
+                }else{
+                    println(id.toString()+" is unchecked")
+                }
+            }
+        })
+        */
+        /*dialog.listView.itemsCanFocus = false
+        dialog.listView.choiceMode = ListView.CHOICE_MODE_MULTIPLE
+        dialog.listView.setOnItemClickListener(object: AdapterView.OnItemClickListener{
+            override fun onItemClick(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                print("clicked "+id+" ")
+                var textView: CheckedTextView = view as CheckedTextView
+                if(textView.isChecked){
+                    println("is checked")
+                }else{
+                    println("is unchecked")
+                }
+            }
+        })
+        dialog.show()
+        */
     }
 }

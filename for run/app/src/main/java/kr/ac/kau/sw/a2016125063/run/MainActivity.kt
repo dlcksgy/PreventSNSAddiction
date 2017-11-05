@@ -101,7 +101,7 @@ class MainActivity : AppCompatActivity() {
             //비교, 입력
             var i:Int = usedApps.size-1
             var k:Int = appDataList.size-1
-            while(i>0 && k>0){
+            while(i>=0 && k>=0){
                 //패키지명이 같을 때
                 if(usedApps[i].packageName == appDataList[k].accumulatedTime){
                     val acTime = ((usedApps[i].totalTimeInForeground)/1000L).toInt()

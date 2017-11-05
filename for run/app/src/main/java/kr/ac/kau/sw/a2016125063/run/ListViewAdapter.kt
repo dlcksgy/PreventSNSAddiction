@@ -58,25 +58,4 @@ class ListViewAdapter(items: ArrayList<ListViewItem>): BaseAdapter(){
 
         return convertView
     }
-
-    //아이템 데이터 추가를 위한 함수
-    fun addItem(icon: Drawable, appName: String, acTime: String){
-        var item: ListViewItem = ListViewItem()
-
-        item.iconDrawable = icon
-        item.appName = appName
-        item.accumulatedTime = acTime
-
-        listViewItemList.add(item)
-    }
-
-    fun clear(){
-        listViewItemList.clear()
-    }
-
-    //onResume에서 data refresh
-    fun refresh(listViewItem: ArrayList<ListViewItem>){
-        this.listViewItemList = listViewItem
-        notifyDataSetChanged()
-    }
 }

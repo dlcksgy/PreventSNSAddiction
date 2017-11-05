@@ -65,9 +65,11 @@
         android:orientation="horizontal"
         android:paddingBottom="20sp">
         <TextView
+            android:id="@+id/time_limit_dialog"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/limit_setting"
+            android:clickable="true"
             android:textSize="20sp"
             android:paddingStart="10sp"/>
         <CheckBox
