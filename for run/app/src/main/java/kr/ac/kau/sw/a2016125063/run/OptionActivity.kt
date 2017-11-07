@@ -85,7 +85,7 @@ class OptionActivity: AppCompatActivity() {
         Log.d("OptionActivity","layout initialzing complete")
 
 
-        //앱 제한 텍스트 뷰
+        //앱 제한 리스트 뷰
         val appLimiting = findViewById<TextView>(R.id.time_limit_dialog)
         appLimiting.setOnClickListener {
             Log.d("setOnClickListener","app limit textview is clicked")
@@ -218,5 +218,10 @@ class OptionActivity: AppCompatActivity() {
 
         dialog.show()
         //출처//
+
+        /*
+        var dialog: Dialog = Dialog(this)
+        var view: View = layoutInflater.inflate(R.layout.
+         */
     }
 }
