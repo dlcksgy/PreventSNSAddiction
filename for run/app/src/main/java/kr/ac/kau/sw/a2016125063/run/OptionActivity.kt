@@ -25,7 +25,7 @@ import java.util.ArrayList
  */
 class OptionActivity: AppCompatActivity() {
     //custom adapter
-    var dialogAdapter: DialogAdapter = DialogAdapter(ArrayList<DialogItem>())
+    //var dialogAdapter: DialogAdapter = DialogAdapter(ArrayList<DialogItem>())
 
     //DB에 넣을 데이터 배열
     var data = Array<Int>(8, {0})
@@ -169,7 +169,7 @@ class OptionActivity: AppCompatActivity() {
         //listView 설정
         //var listView = findViewById<ListView>(R.id.dialog_app_listview)
         //어뎁터 생성
-        dialogAdapter = DialogAdapter(appDataList)
+        //dialogAdapter = DialogAdapter(this, appDataList)
         //어뎁터 설정
         //listView.adapter = dialogAdapter
 
@@ -209,40 +209,14 @@ class OptionActivity: AppCompatActivity() {
         builder.setView(popUpLayout)
 
         var dialog: AlertDialog = builder.create()
+        //다이얼로그 바깥을 만졌을 때 창이 취소되는지
+        dialog.setCanceledOnTouchOutside(false)
         //dialog.show()
 
         val listView = popUpLayout.findViewById<ListView>(R.id.dialog_app_listview)
-        listView.adapter = DialogAdapter(appDataList)
+        listView.adapter = DialogAdapter(this, appDataList)
 
         dialog.show()
         //출처//
-        /*
-        listView.choiceMode = ListView.CHOICE_MODE_MULTIPLE
-        listView.setOnItemClickListener(object: AdapterView.OnItemClickListener{
-            override fun onItemClick(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                var checkedTextView: CheckedTextView = view as CheckedTextView
-                if(checkedTextView.isChecked){
-                    println(id.toString()+" is checked")
-                }else{
-                    println(id.toString()+" is unchecked")
-                }
-            }
-        })
-        */
-        /*dialog.listView.itemsCanFocus = false
-        dialog.listView.choiceMode = ListView.CHOICE_MODE_MULTIPLE
-        dialog.listView.setOnItemClickListener(object: AdapterView.OnItemClickListener{
-            override fun onItemClick(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                print("clicked "+id+" ")
-                var textView: CheckedTextView = view as CheckedTextView
-                if(textView.isChecked){
-                    println("is checked")
-                }else{
-                    println("is unchecked")
-                }
-            }
-        })
-        dialog.show()
-        */
     }
 }
