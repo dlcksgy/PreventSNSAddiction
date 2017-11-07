@@ -5,13 +5,8 @@ import android.content.DialogInterface
 import android.content.Intent
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
-import android.database.Cursor
-import android.database.sqlite.SQLiteDatabase
-import android.database.sqlite.SQLiteOpenHelper
 import android.os.Bundle
-import android.os.PersistableBundle
 import android.support.v7.app.AppCompatActivity
-import android.text.Editable
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -24,9 +19,6 @@ import java.util.ArrayList
  * Created by 이은솔 on 2017-09-11.
  */
 class OptionActivity: AppCompatActivity() {
-    //custom adapter
-    //var dialogAdapter: DialogAdapter = DialogAdapter(ArrayList<DialogItem>())
-
     //DB에 넣을 데이터 배열
     var data = Array<Int>(8, {0})
 
@@ -147,6 +139,9 @@ class OptionActivity: AppCompatActivity() {
 
     //다이얼 로그를 만듬
     fun createDialog(){
+        //db를 다루기위한 dbHelper
+        val dbHelper: DBHelper = DBHelper(applicationContext, "Settings.db", null, 1)
+
         //설치된 패키지 목록 뽑기
         //출처//http://www.masterqna.com/android/23456/%EC%84%A4%EC%B9%98%EB%90%9C-%ED%8C%A8%ED%82%A4%EC%A7%80-%EB%AA%A9%EB%A1%9D-%EB%BD%91%EB%8A%94-%EB%B0%A9%EB%B2%95
         var appDataList = ArrayList<DialogItem>()//커스텀 리스트뷰에 사용
@@ -163,65 +158,54 @@ class OptionActivity: AppCompatActivity() {
         }
         Log.d("apps element count",appDataList.size.toString())
 
+        //DB에 저장된 제한 앱 목록 불러오기
+        val limitApps = dbHelper.getLimitation()
 
-        //커스텀 리스트뷰 만들기
-        //출처//http://recipes4dev.tistory.com/43
-        //listView 설정
-        //var listView = findViewById<ListView>(R.id.dialog_app_listview)
-        //어뎁터 생성
-        //dialogAdapter = DialogAdapter(this, appDataList)
-        //어뎁터 설정
-        //listView.adapter = dialogAdapter
-
-        /*
-        //출처//https://stackoverflow.com/questions/10932832/multiple-choice-alertdialog-with-custom-adapter
-        var builder: AlertDialog = AlertDialog.Builder(baseContext)
-                .setTitle("Title")
-                .setAdapter(dialogAdapter,null)
-                .setPositiveButton("ok",null)
-                .setNegativeButton("no",null)
-                .create()
-
-        builder.listView.itemsCanFocus = false
-        builder.listView.choiceMode = ListView.CHOICE_MODE_MULTIPLE
-        builder.listView.onItemClickListener = object:AdapterView.OnItemClickListener{
-            override fun onItemClick(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                println("clicked "+id)
-                var textView: CheckedTextView = view as CheckedTextView
-                if(textView.isChecked){
-                    println("is checked")
-                }else{
-                    println("is unchecked")
-                }
-            }
-        }
-
-        builder.show()
-        */
         //출처//https://stackoverflow.com/questions/13504781/custom-listview-inside-a-dialog-in-android
-        val builder: AlertDialog.Builder = AlertDialog.Builder(this)
-        builder.setTitle("접근 제한 목록")
-        builder.setPositiveButton("설정",null)
-        builder.setNegativeButton("취소",null)
-
+        //dialog창을  띄우기 위한 과정
         var inflater: LayoutInflater = layoutInflater
         val popUpLayout: View = inflater.inflate(R.layout.dialog_listview, null)
+
+        val listView = popUpLayout.findViewById<ListView>(R.id.dialog_app_listview)
+        val dialogAdapter = DialogAdapter(this, appDataList)
+        listView.adapter = dialogAdapter
+
+        //DB값을 이용해서 저장된 앱은 표시해주기
+        var i: Int = 0; var k: Int = 0
+        val limitAppSize = limitApps.size
+        while(i < limitAppSize){
+            if(limitApps[i] == appDataList[k].appName){//제한앱을 찾으면
+                listView.setItemChecked(k, true)
+                i+=1
+            }
+            k+=1
+        }
+
+        val builder: AlertDialog.Builder = AlertDialog.Builder(this)
+        builder.setTitle("접근 제한 목록")
+        builder.setPositiveButton("설정", object: DialogInterface.OnClickListener{
+            override fun onClick(p0: DialogInterface?, p1: Int) {
+                val checkedItems = listView.checkedItemPositions
+                val dataSize:Int = appDataList.size-1
+                //limit table에 넣을 배열
+                var limitList: ArrayList<String> = ArrayList<String>()
+                for(i:Int in 0..dataSize){
+                    if(checkedItems[i]){
+                        limitList.add(appDataList[i].appName!!)
+                        Log.d("checked Items --> ",appDataList[i].appName)
+                    }
+                }
+                dbHelper.deleteLimitation()
+                dbHelper.insertLimitation(limitList)
+                Log.d("limit app count",dbHelper.getLimitElementCount().toString())
+            }
+        })
+        builder.setNegativeButton("취소", null)
         builder.setView(popUpLayout)
 
         var dialog: AlertDialog = builder.create()
         //다이얼로그 바깥을 만졌을 때 창이 취소되는지
         dialog.setCanceledOnTouchOutside(false)
-        //dialog.show()
-
-        val listView = popUpLayout.findViewById<ListView>(R.id.dialog_app_listview)
-        listView.adapter = DialogAdapter(this, appDataList)
-
         dialog.show()
-        //출처//
-
-        /*
-        var dialog: Dialog = Dialog(this)
-        var view: View = layoutInflater.inflate(R.layout.
-         */
     }
 }

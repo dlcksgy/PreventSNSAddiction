@@ -1,7 +1,5 @@
 package kr.ac.kau.sw.a2016125063.preventsnsaddiction
 
-import android.provider.BaseColumns
-
 /**
  * Created by 이은솔 on 2017-09-20.
  */
@@ -25,9 +23,8 @@ class DataBases{
                 initializingHour+" INTEGER, "+initializingMinute+" INTEGER);"
 
         val appName = "appName"
-        val acTime = "accumulatedTime"
-        val _TABLENAME_TIME = "timeTable"
-        val _CREATE_TIME = "CREATE TABLE IF NOT EXISTS "+_TABLENAME_TIME+
-                "("+appName+" TEXT, "+acTime+" INTEGER);"
+        val _TABLENAME_LIMIT = "limitTable"
+        val _CREATE_TIME = "CREATE TABLE IF NOT EXISTS "+ _TABLENAME_LIMIT +
+                "("+appName+" TEXT);"
     }
 }

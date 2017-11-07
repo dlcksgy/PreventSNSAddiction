@@ -18,7 +18,6 @@ import android.util.Log
 import android.widget.Button
 import android.widget.ListView
 import android.widget.TextView
-import kr.ac.kau.sw.a2016125063.run.DialogItem
 import java.util.*
 
 class MainActivity : AppCompatActivity() {
@@ -53,15 +52,7 @@ class MainActivity : AppCompatActivity() {
 */
         //모두 정돈된 데이터가 들어갈 리스트 (이 함수의 반환값)
         var sortedList = ArrayList<ListViewItem>()
-
-        //time table이 없으면 만들고 초기화
-        if(dbHelper.getTimeElementCount() == 0){
-            for(app:ApplicationInfo in packs){
-                packageNameList.add(app.packageName.toString())
-            }
-            dbHelper.initializeTime(packageNameList)
-        }
-
+        //핸드폰에 설치된 앱의 아이콘과 앱이르, 패키지명 가져오기
         for(app:ApplicationInfo in packs){
             appDataList.add(ListViewItem(app.loadIcon(pm), app.loadLabel(pm).toString(), app.packageName.toString()))
         }
@@ -130,18 +121,6 @@ class MainActivity : AppCompatActivity() {
         for(i in sortedList){
             Log.d("sortedList",i.accumulatedTime)
         }
-
-        //출처//https://www.programiz.com/kotlin-programming/examples/sort-custom-objects-property
-        /*
-        var sortedList = appDataList.sortedWith(compareBy({it.accumulatedTime}))
-        for(i:ListViewItem in sortedList){
-            Log.d("sortedList",i.accumulatedTime)
-        }
-        Log.d("sortedList size (app)",sortedList.size.toString())
-        */
-
-        //appDataList.find { it.accumulatedTime != "00:00:00" }
-        //appDataList.sortBy { it.appName }
 
         return sortedList
     }

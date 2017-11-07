@@ -14,6 +14,7 @@ class DBHelper(context: Context, name: String, factory: SQLiteDatabase.CursorFac
     : SQLiteOpenHelper(context, name, factory, version) {
 
     var data = Array<Int>(8,{0})
+    var limitApps = ArrayList<String>()
 
     override fun onCreate(db: SQLiteDatabase?) {
         //새로운 테이블 생성
@@ -77,37 +78,39 @@ class DBHelper(context: Context, name: String, factory: SQLiteDatabase.CursorFac
         return count
     }
 
-    fun initializeTime(data: ArrayList<String>){
-        //timeTable을 초기화 할때 처음에만 만듦
+    fun insertLimitation(data: ArrayList<String>){
+        //limitTable을 초기화 할때 처음에만 만듦
         val db: SQLiteDatabase = writableDatabase
         for(i: String in data){
-            db.execSQL("INSERT INTO "+DataBases._TABLENAME_TIME+" VALUES('"+i+"', "+0+");")
+            db.execSQL("INSERT INTO "+DataBases._TABLENAME_LIMIT +" VALUES('"+i+"');")
         }
-        Log.d("initializeTime","time initialized")
+        Log.d("insertLimitation","limited apps inserted")
         db.close()
     }
 
-    fun updateTime(data: Pair<String,Int>){
-        //바뀐 시간들 업데이트
+    fun deleteLimitation(){
+        //제한 데이블 내용 지우기
         val db: SQLiteDatabase = writableDatabase
-        db.execSQL("UPDATE "+DataBases._TABLENAME_TIME+" SET "+
-                DataBases.acTime+" = "+data.second+" WHERE "+DataBases.appName+" = '"+data.first+"';")
-        Log.d("updateTime","time changed sucessfully -> "+data.second.toString())
+        db.execSQL("DELETE FROM "+DataBases._TABLENAME_LIMIT)
+        Log.d("deleteLimitation","limit table deleted")
         db.close()
     }
 
-    fun getTime(pakageName: String): Int{
+    fun getLimitation(): ArrayList<String>{
+        //제한 테이블 목록 불러오기
         val db: SQLiteDatabase = readableDatabase
-        var cursor: Cursor = db.rawQuery("SELECT "+DataBases.acTime+" FROM "+DataBases._TABLENAME_TIME+
-                " WHERE "+DataBases.appName+" = '"+pakageName+"'",null)
-        cursor.moveToNext()
-        return cursor.getInt(0)
+        var cursor: Cursor = db.rawQuery("SELECT * FROM "+DataBases._TABLENAME_LIMIT, null)
+        while(cursor.moveToNext()){
+            limitApps.add(cursor.getString(0))
+            Log.d("getLimitApp",limitApps[limitApps.size-1])
+        }
+        return limitApps
     }
 
-    fun getTimeElementCount(): Int{
+    fun getLimitElementCount(): Int{
         var count: Int = 0
         val db: SQLiteDatabase = readableDatabase
-        var cursor: Cursor = db.rawQuery("SELECT * FROM "+DataBases._TABLENAME_TIME,null)
+        var cursor: Cursor = db.rawQuery("SELECT * FROM "+DataBases._TABLENAME_LIMIT,null)
         while(cursor.moveToNext()){
             count+=1
         }
