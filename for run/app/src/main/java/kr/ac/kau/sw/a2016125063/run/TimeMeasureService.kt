@@ -36,7 +36,7 @@ var time: Int = 0//어플시작 시간 측정
             Log.d("timer",count.toString())
             count++
 
-            val am = getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+            val am = applicationContext.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
             val info: List<ActivityManager.RunningTaskInfo> = am.getRunningTasks(1)
             val topActivity: ComponentName = info.get(0).topActivity
             val activityName = topActivity.packageName
@@ -45,8 +45,8 @@ var time: Int = 0//어플시작 시간 측정
 
             if(app != activityName){
                 if(app != "") {//탑액티비티의 이름이 달라질때 마다 실행
-                    val acTime = dbHelper!!.getTime(app)
-                    dbHelper!!.updateTime(Pair(app, acTime + ((System.currentTimeMillis() / 1000).toInt() - time)))
+                    //val acTime = dbHelper!!.getTime(app)
+                    //dbHelper!!.updateTime(Pair(app, acTime + ((System.currentTimeMillis() / 1000).toInt() - time)))
                 }
                 app = activityName
                 time = (System.currentTimeMillis()/1000).toInt()
@@ -56,7 +56,7 @@ var time: Int = 0//어플시작 시간 측정
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         Log.d("TimeMeasureService","onStartCommand")
-        timer.schedule(monitor,0,1000)
+        //timer.schedule(monitor,0,1000)
         return super.onStartCommand(intent, flags, startId)
     }
 

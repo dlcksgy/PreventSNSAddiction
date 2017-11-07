@@ -13,9 +13,11 @@ import android.widget.TextView
  * Created by 이은솔 on 2017-09-17.
  * 출처//http://recipes4dev.tistory.com/43
  */
-class ListViewAdapter(items: ArrayList<ListViewItem>): BaseAdapter(){
+class ListViewAdapter(context: Context, items: ArrayList<ListViewItem>): BaseAdapter(){
     var listViewItemList: ArrayList<ListViewItem> = items
         private set
+
+    val mInflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
 
     override fun getCount(): Int {
         return listViewItemList.size
@@ -30,23 +32,14 @@ class ListViewAdapter(items: ArrayList<ListViewItem>): BaseAdapter(){
     override fun getItem(position: Int): Any {
         return listViewItemList.get(position)
     }
-
+    //bug catch 안드로이드 시간의 listView 가져옴. 비효율적이지만 버그 잡음
     override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
-        val pos: Int = position
-        val context: Context? = parent?.context
-
-        //"listview_item" layout을 inflate하여 converView획득
-        if(convertView == null){
-            val inflater: LayoutInflater = context?.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
-            var notChangedView = convertView
-            notChangedView = inflater.inflate(R.layout.listview_item, parent, false)
-            return notChangedView
-        }
+        val rowView = mInflater.inflate(R.layout.listview_item, parent, false)
 
         //화면에 표시될 View(Layout이 inflate된)로부터 위젯에 대한 참조 획득
-        val iconImageView: ImageView = convertView?.findViewById<ImageView>(R.id.image_view_item)
-        val nameTextView: TextView = convertView?.findViewById<TextView>(R.id.text_view_app_name)
-        val timeTextView: TextView = convertView?.findViewById<TextView>(R.id.text_view_time)
+        val iconImageView: ImageView = rowView.findViewById<ImageView>(R.id.image_view_item)
+        val nameTextView: TextView = rowView.findViewById<TextView>(R.id.text_view_app_name)
+        val timeTextView: TextView = rowView.findViewById<TextView>(R.id.text_view_time)
 
         //Data Set(ListViewItem)에서 position에 위치한 데이타 참조 획득
         val listViewItem: ListViewItem = listViewItemList.get(position)
@@ -56,27 +49,6 @@ class ListViewAdapter(items: ArrayList<ListViewItem>): BaseAdapter(){
         nameTextView.text = listViewItem.appName
         timeTextView.text = listViewItem.accumulatedTime
 
-        return convertView
-    }
-
-    //아이템 데이터 추가를 위한 함수
-    fun addItem(icon: Drawable, appName: String, acTime: String){
-        var item: ListViewItem = ListViewItem()
-
-        item.iconDrawable = icon
-        item.appName = appName
-        item.accumulatedTime = acTime
-
-        listViewItemList.add(item)
-    }
-
-    fun clear(){
-        listViewItemList.clear()
-    }
-
-    //onResume에서 data refresh
-    fun refresh(listViewItem: ArrayList<ListViewItem>){
-        this.listViewItemList = listViewItem
-        notifyDataSetChanged()
+        return rowView
     }
 }

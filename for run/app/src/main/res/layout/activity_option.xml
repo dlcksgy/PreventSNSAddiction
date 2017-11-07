@@ -9,13 +9,14 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:text="@string/time_limit_on_off"
+            android:text="시간 제한 설정"
             android:textSize="25sp"
             android:paddingStart="10sp"/>
         <CheckBox
             android:id="@+id/time_limit_checkBox"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"/>
     </LinearLayout>
     <LinearLayout
         android:layout_width="match_parent"
@@ -26,7 +27,7 @@
             android:id="@+id/limit_hour"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:hint="hour"
+            android:hint="시간"
             android:gravity="center"
             android:layout_weight="1"
             android:inputType="number"/>
@@ -34,7 +35,7 @@
             android:id="@+id/limit_minute"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:hint="min"
+            android:hint="분"
             android:gravity="center"
             android:layout_weight="1"
             android:inputType="number"/>
@@ -42,7 +43,7 @@
             android:id="@+id/limit_second"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:hint="sec"
+            android:hint="초"
             android:gravity="center"
             android:layout_weight="1"
             android:inputType="number"/>
@@ -50,7 +51,7 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/time_to_initialize"
+        android:text="초기화 시각"
         android:textSize="20sp"
         android:paddingStart="10sp"/>
     <TimePicker
@@ -65,15 +66,18 @@
         android:orientation="horizontal"
         android:paddingBottom="20sp">
         <TextView
+            android:id="@+id/time_limit_dialog"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/limit_setting"
+            android:text="어플 제한"
+            android:clickable="true"
             android:textSize="20sp"
             android:paddingStart="10sp"/>
         <CheckBox
             android:id="@+id/application_limit_checkBox"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"/>
     </LinearLayout>
     <LinearLayout
         android:layout_width="match_parent"
@@ -82,34 +86,13 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/selfie_upload"
+            android:text="셀카 자동 업로드"
             android:textSize="20sp"
             android:paddingStart="10sp"/>
         <CheckBox
             android:id="@+id/selfie_upload_checkBox"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
-    </LinearLayout>
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:paddingTop="20sp">
-        <Button
-            android:id="@+id/ok_button"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:text="ok"
-            android:textSize="20sp"
-            android:layout_weight="1"
-            android:gravity="center"/>
-        <Button
-            android:id="@+id/cancel_button"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:text="cancel"
-            android:textSize="20sp"
-            android:layout_weight="1"
-            android:gravity="center"/>
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"/>
     </LinearLayout>
 </LinearLayout>
