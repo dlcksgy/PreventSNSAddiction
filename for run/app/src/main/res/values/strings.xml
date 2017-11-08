@@ -4,6 +4,6 @@
     <string name="left_time">left time</string>
     <string name="time_limit_on_off">time limit setting</string>
     <string name="time_to_initialize"><b>initialization time</b></string>
-    <string name="limit_setting">limiting application</string>
+    <string name="limit_setting"><b>어플 제한</b></string>
     <string name="selfie_upload"><b>selfie auto uploading</b></string>
 </resources>

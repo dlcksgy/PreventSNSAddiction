@@ -16,6 +16,7 @@ import android.os.Bundle
 import android.provider.Settings
 import android.util.Log
 import android.widget.Button
+import android.widget.ImageButton
 import android.widget.ListView
 import android.widget.TextView
 import java.util.*
@@ -27,10 +28,10 @@ class MainActivity : AppCompatActivity() {
     var spentTime: Long = 0
 
     fun makeStringTime(sec: Int): String{
-        val hour = if(sec/3600 >= 10) (sec/3600).toString() else "0"+(sec/3600).toString()
-        val minute = if((sec/60)%60 >= 10) ((sec/60)%60).toString() else "0"+((sec/60)%60).toString()
-        val second = if(sec%60 >= 10) (sec%60).toString() else "0"+(sec%60).toString()
-        val stringTime = hour+":"+minute+":"+second
+        val hour = if(sec/3600 != 0) (sec/3600).toString()+"시간 " else ""
+        val minute = if((sec/60)%60 != 0) ((sec/60)%60).toString()+"분 " else ""
+        val second = if(sec%60 != 0) (sec%60).toString()+"초 " else ""
+        val stringTime = hour+minute+second
         return stringTime
     }
 
@@ -43,13 +44,13 @@ class MainActivity : AppCompatActivity() {
         var appDataList = ArrayList<ListViewItem>()//커스텀 리스트뷰에 사용
 
         var packageNameList = ArrayList<String>()//time 테이블 생성에 사용
-
+/*
         val pm: PackageManager = getPackageManager()
         val packs = pm.getInstalledApplications(PackageManager.GET_DISABLED_COMPONENTS)
-        /*
+  */
         val pm: PackageManager = getPackageManager()
         val packs = pm.getInstalledApplications(PackageManager.GET_META_DATA)
-*/
+
         //모두 정돈된 데이터가 들어갈 리스트 (이 함수의 반환값)
         var sortedList = ArrayList<ListViewItem>()
         //핸드폰에 설치된 앱의 아이콘과 앱이르, 패키지명 가져오기
@@ -59,10 +60,10 @@ class MainActivity : AppCompatActivity() {
 
         /*
         * 시간 많은 순으로 정렬하기
-        * DB 손봐서 누적시간 데이터 없이 앱 목록 패키지 명만 입력하기, DB 정돈
         * 여유가 된다면 그래프 그려넣기
         */
 
+        //http://eteris.tistory.com/1485
         // 기타 프로세스 목록 확인
         val usage = this.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
         val time = System.currentTimeMillis()
@@ -82,7 +83,7 @@ class MainActivity : AppCompatActivity() {
                 println("///  used time --> ${usageStats.totalTimeInForeground/1000L}")
                 //사용 시간 0인 것들 골라내기
 
-                if(usageStats.totalTimeInForeground != 0L){
+                if(usageStats.totalTimeInForeground >= 1000L){
                     usedApps.add(usageStats)
                 }
                 //사용시간 측정값 로그로 출력
@@ -139,6 +140,8 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        //타이틀바 없애기
+        //출처: http://commin.tistory.com/63 [Commin의 일상코딩]
         setContentView(R.layout.activity_main)
 
         // GET_USAGE_STATS 권한 확인
@@ -157,7 +160,7 @@ class MainActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
-        val optionButton = findViewById<Button>(R.id.option_button)
+        val optionButton = findViewById<ImageButton>(R.id.option_image_button)
         optionButton.setOnClickListener{
             val intent = Intent(this@MainActivity, OptionActivity::class.java)
             startActivity(intent)
@@ -187,14 +190,6 @@ class MainActivity : AppCompatActivity() {
         //아이템 추가
         //listViewAdapter!!.notifyDataSetChanged()
 
-        /*임시방편으로 버그 해결
-        *스크롤을 움직여야만 리스트뷰에 아이템이 차므로 처음 리스트뷰의 아이템이 보이는 위치를
-        *내 화면보다 아래로 설정하고 그 다음 스크롤을 올려줘서 해결함
-        *출처: https://stackoverflow.com/questions/3503133/listview-scroll-to-selected-item
-        */
-        //listView.setSelection(9)
-        //listView.smoothScrollToPosition(0)
-
         //시간을 가리키는 글
         val signTime = findViewById<TextView>(R.id.left_or_acculumated)
         //남은 시간 textview
@@ -213,7 +208,7 @@ class MainActivity : AppCompatActivity() {
                 leftTimeTextview.setText("00:00:00")
             }
         }else{//시간제한이 풀려 있을 때 누적시간을 보여줌
-            signTime.setText("총 누적 시간")
+            signTime.setText("총 사용 시간")
             leftTimeTextview.setText(makeStringTime((spentTime/1000).toInt()))
         }
     }

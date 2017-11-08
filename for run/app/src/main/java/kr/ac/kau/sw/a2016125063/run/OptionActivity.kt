@@ -8,6 +8,7 @@ import android.content.pm.PackageManager
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.*
@@ -134,7 +135,17 @@ class OptionActivity: AppCompatActivity() {
         dbHelper.insertSettings(data)
         dbHelper.getSettings()
 
-        super.onBackPressed()
+        //백버튼 막기
+        //출처// http://migom.tistory.com/14
+        if(data[3] >= 24 || data[4] >= 60 || data[5] >= 60){//설정할 수 없는 시간
+            //토스트창 띄우기
+            //춮처// http://h5bak.tistory.com/92
+            val toast: Toast = Toast.makeText(applicationContext, "설정할 수 없는 시간입니다.", Toast.LENGTH_SHORT)
+            toast.setGravity(Gravity.CENTER, 0, 0)
+            toast.show()
+        }else{
+            super.onBackPressed()
+        }
     }
 
     //다이얼 로그를 만듬
@@ -201,11 +212,26 @@ class OptionActivity: AppCompatActivity() {
             }
         })
         builder.setNegativeButton("취소", null)
+        builder.setNeutralButton("초기화", object: DialogInterface.OnClickListener{
+            override fun onClick(p0: DialogInterface?, p1: Int) {
+            }
+        })
+        builder.setCancelable(false)
         builder.setView(popUpLayout)
 
         var dialog: AlertDialog = builder.create()
         //다이얼로그 바깥을 만졌을 때 창이 취소되는지
         dialog.setCanceledOnTouchOutside(false)
         dialog.show()
+
+        //다이얼로그 버튼 눌러도 종료 안되게 하기
+        //출처// http://fullstatck.tistory.com/13
+        dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setOnClickListener(object: View.OnClickListener {
+            override fun onClick(p0: View?) {
+                for(i:Int in 0..appDataList.size-1){
+                    listView.setItemChecked(i, false)
+                }
+            }
+        })
     }
 }

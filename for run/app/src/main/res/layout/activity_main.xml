@@ -9,19 +9,17 @@
         android:id="@+id/accumulatedTime"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
-        <TextView
+        android:orientation="horizontal"
+        android:paddingTop="2sp"
+        android:paddingEnd="5sp">
+        <ImageButton
+            android:id="@+id/option_image_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text = "@string/accumulated_time"
-            android:textSize = "20sp"
-            android:layout_centerVertical="true"/>
-        <Button
-            android:id="@+id/option_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="option"
-            android:layout_alignParentEnd="true"/>
+            android:layout_alignParentEnd="true"
+            android:src="@drawable/setting_btn"
+            android:background="#00000000"
+            android:padding="0dp"/>
     </RelativeLayout>
     <LinearLayout
         android:id="@+id/app_and_time"
@@ -30,15 +28,11 @@
         android:orientation="horizontal"
         android:layout_below="@id/accumulatedTime">
         <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:text="앱"
-            android:paddingStart="15sp"/>
-        <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="누적 시간"
-            android:gravity="center_horizontal"/>
+            android:paddingRight="5sp"
+            android:gravity="right"/>
     </LinearLayout>
     <ListView
         android:id="@+id/app_list"

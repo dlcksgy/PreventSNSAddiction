@@ -22,11 +22,15 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:paddingBottom="20sp">
+        android:paddingTop="20sp"
+        android:paddingBottom="20sp"
+        android:focusable="true"
+        android:focusableInTouchMode="true">
         <EditText
             android:id="@+id/limit_hour"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
+            android:nextFocusDown="@id/limit_minute"
             android:hint="시간"
             android:gravity="center"
             android:layout_weight="1"
@@ -35,6 +39,7 @@
             android:id="@+id/limit_minute"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
+            android:nextFocusDown="@id/limit_second"
             android:hint="분"
             android:gravity="center"
             android:layout_weight="1"
@@ -43,6 +48,7 @@
             android:id="@+id/limit_second"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
+            android:imeOptions="actionDone"
             android:hint="초"
             android:gravity="center"
             android:layout_weight="1"
@@ -51,9 +57,9 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:gravity="center"
         android:text="초기화 시각"
-        android:textSize="20sp"
-        android:paddingStart="10sp"/>
+        android:textSize="20sp"/>
     <TimePicker
         android:id="@+id/timePicker"
         android:layout_width="match_parent"
@@ -69,8 +75,9 @@
             android:id="@+id/time_limit_dialog"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="어플 제한"
+            android:text="@string/limit_setting"
             android:clickable="true"
+            android:focusable="false"
             android:textSize="20sp"
             android:paddingStart="10sp"/>
         <CheckBox
