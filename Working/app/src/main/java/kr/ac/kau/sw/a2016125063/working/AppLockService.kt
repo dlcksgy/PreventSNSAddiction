@@ -31,9 +31,48 @@ class AppLockService : Service(){
     private val handler = object : Handler() {
         override fun handleMessage(msg: Message) {
             if (msg.arg1 == 1)
-                Toast.makeText(applicationContext, "빼애애애애액", Toast.LENGTH_LONG).show()
+                Toast.makeText(applicationContext, "빼애애애애애애애애애애애애애액\n" +
+                        "빼애애애애애애애애애애애애애액\n" +
+                        "빼애애애애애애애애애애애애애액\n" +
+                        "빼애애애애애애애애애애애애애액\n" +
+                        "빼애애애애애애애애애애애애애액\n" +
+                        "빼애애애애애애애애애애애애애액\n" +
+                        "빼애애애애애애애애애애애애애액\n" +
+                        "빼애애애애애애애애애애애애애액\n" +
+                        "빼애애애애애애애애애애애애애액\n" +
+                        "빼애애애애애애애애애애애애애액\n" +
+                        "빼애애애애애애애애애애애애애액\n" +
+                        "빼애애애애애애애애애애애애애액\n" +
+                        "빼애애애애애애애애애애애애애액\n" +
+                        "빼애애애애애애애애애애애애애액\n" +
+                        "빼애애애애애애애애애애애애애액\n" +
+                        "빼애애애애애애애애애애애애애액\n" +
+                        "빼애애애애애애애애애애애애애액\n" +
+                        "빼애애애애애애애애애애애애애액\n" +
+                        "빼애애애애애애애애애애애애애액\n" +
+                        "빼애애애애애애애애애애애애애액\n" +
+                        "빼애애애애애애애애애애애애애액\n" +
+                        "빼애애애애애애애애애애애애애액\n" +
+                        "빼애애애애애애애애애애애애애액\n" +
+                        "빼애애애애애애애애애애애애애액\n" +
+                        "빼애애애애애애애애애애애애애액\n" +
+                        "빼애애애애애애애애애애애애애액\n" +
+                        "빼애애애애애애애애애애애애애액\n" +
+                        "빼애애애애애애애애애애애애애액\n" +
+                        "빼애애애애애애애애애애애애애액\n" +
+                        "빼애애애애애애애애애애애애애액\n" +
+                        "빼애애애애애애애애애애애애애액\n" +
+                        "빼애애애애애애애애애애애애애액\n" +
+                        "빼애애애애애애애애애애애애애액\n" +
+                        "빼애애애애애애애애애애애애애액\n" +
+                        "빼애애애애애애애애애애애애애액\n" +
+                        "빼애애애애애애애애애애애애애액\n" +
+                        "빼애애애애애애애애애애애애애액\n" +
+                        "빼애애애애애애애애애애애애애액\n" +
+                        "빼애애애애애애애애애애애애애액", Toast.LENGTH_LONG).show()
         }
     }
+
     override fun onBind(p0: Intent?): IBinder {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
@@ -48,7 +87,6 @@ class AppLockService : Service(){
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         Log.d("Service : ","onStartCommand")
-
         val timer = Timer()
         val task = object : TimerTask() {
             override fun run() {
@@ -65,15 +103,11 @@ class AppLockService : Service(){
                 handler.sendMessage(msg)
 
 
-
             }
         }
 
-
-        timer.schedule(task, 0, 4000)  // delay 초 후 run을 실행하고 period/1000초마다 실행
+        timer.schedule(task, 0, 10000)  // delay 초 후 run을 실행하고 period/1000초마다 실행
         return super.onStartCommand(intent, flags, startId)
-
-
 
     }
 
@@ -101,6 +135,8 @@ class AppLockService : Service(){
 
         return ""
     }
+
+    //위와 아래의 함수는 거의 같은 역할을 하는 함수임.
 
 
     // 참고 : https://stackoverflow.com/questions/38971472/using-usagestatsmanager-to-get-the-foreground-app
