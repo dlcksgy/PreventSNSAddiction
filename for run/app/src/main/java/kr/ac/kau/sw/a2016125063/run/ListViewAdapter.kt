@@ -13,11 +13,9 @@ import android.widget.TextView
  * Created by 이은솔 on 2017-09-17.
  * 출처//http://recipes4dev.tistory.com/43
  */
-class ListViewAdapter(context: Context, items: ArrayList<ListViewItem>): BaseAdapter(){
+class ListViewAdapter(val context: Context, items: ArrayList<ListViewItem>): BaseAdapter(){
     var listViewItemList: ArrayList<ListViewItem> = items
         private set
-
-    val mInflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
 
     override fun getCount(): Int {
         return listViewItemList.size
@@ -34,7 +32,7 @@ class ListViewAdapter(context: Context, items: ArrayList<ListViewItem>): BaseAda
     }
     //bug catch 안드로이드 시간의 listView 가져옴. 비효율적이지만 버그 잡음
     override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
-        val rowView = mInflater.inflate(R.layout.listview_item, parent, false)
+        val rowView = convertView ?: LayoutInflater.from(context).inflate(R.layout.listview_item, parent, false)
 
         //화면에 표시될 View(Layout이 inflate된)로부터 위젯에 대한 참조 획득
         val iconImageView: ImageView = rowView.findViewById<ImageView>(R.id.image_view_item)

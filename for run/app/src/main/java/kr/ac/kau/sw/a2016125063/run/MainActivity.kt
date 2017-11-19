@@ -65,9 +65,14 @@ class MainActivity : AppCompatActivity() {
 
         //http://eteris.tistory.com/1485
         // 기타 프로세스 목록 확인
-        val usage = this.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
-        val time = System.currentTimeMillis()
-        val stats = usage.queryUsageStats(UsageStatsManager.INTERVAL_DAILY, time - 1000 * 1000, time)
+        val usage = applicationContext.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
+        val endTime = System.currentTimeMillis()
+        val beginTime = endTime - 1000*1000
+        val stats = usage.queryUsageStats(UsageStatsManager.INTERVAL_WEEKLY, beginTime, endTime)
+        //이상한점1: INTERVAL_WEEKLY나 INTERVAL_DAILY나 시작 시간과 끝시간이 같으면 동일한 결과를 뽑아와야할 것 같은데 그렇지 않음.
+        //이상한점2: 내가 알기로는 beginTime을 만들때 빼주는 시간은 밀리초로 대략 16분 이상 정도인데 실제 결과값은 12시간을 상회한다.
+        //https://stackoverflow.com/questions/36238481/android-usagestatsmanager-not-returning-correct-daily-results
+        //이곳의 답변에 의하면 API21 버전에서는 UsageStatsManager가 정상적으로 ㅈ가동하지 않을 수 있나보다.
         if (stats != null) {
             Log.i(ContentValues.TAG, "===== CheckPhoneState isRooting stats is not NULL")
             Log.d("stats !!!!!",stats.toString())
@@ -79,7 +84,8 @@ class MainActivity : AppCompatActivity() {
                 spentTime += usageStats.totalTimeInForeground
                 //Log.d("last time",usageStats.lastTimeUsed.toString())
                 //마지막에 사용된 시간, 총 사용시간
-                print("last time used --> ${usageStats.lastTimeUsed}  ")
+                print(usageStats.packageName+" last time used before --> " +
+                        "${if(usageStats.lastTimeUsed == 0L) usageStats.lastTimeUsed else (endTime-usageStats.lastTimeUsed)/1000}")
                 println("///  used time --> ${usageStats.totalTimeInForeground/1000L}")
                 //사용 시간 0인 것들 골라내기
 
@@ -138,6 +144,27 @@ class MainActivity : AppCompatActivity() {
         return false
     }
 
+    //출처:
+    fun usedTime(){
+        val endTime = System.currentTimeMillis()
+        val beginTime = endTime - 1000*1000
+        val usageStatsManager: UsageStatsManager = this.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
+        val usagesList = usageStatsManager.queryAndAggregateUsageStats(beginTime, endTime)
+        var timeSum = 0L
+        for (usage in usagesList.values) {
+            if(usage.totalTimeInForeground >= 1000L) {
+                print("packageName --> " + usage.packageName)
+                println(",  usedTime -->" + usage.totalTimeInForeground/1000)
+                timeSum += usage.totalTimeInForeground
+            }
+        }
+        println("all time --> "+timeSum/1000)
+        println("endTime --> "+endTime)
+        println("beginTime --> "+beginTime)
+        //탑 액티비티가 바뀔때 바뀐내용이 뒤늦게 나온다.
+        //만일 인터넷앱을 사용한뒤 유튜브로 바꾼다면 화면이 바뀐뒤 인터넷, 유튜브로 들어가도 유튜브가 로그에 나오지 않음
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         //타이틀바 없애기
@@ -166,12 +193,11 @@ class MainActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
-        //서비스가 작동중이면 서비스 추가x
-        if(isServiceRunningCheck() == false) {
-            val i = Intent(applicationContext, TimeMeasureService::class.java)
-            //applicationContext.startService(i)
-            Log.d("API checking", Build.VERSION.RELEASE.toString())
-        }
+        val i = Intent(applicationContext, TimeMeasureService::class.java)
+        applicationContext.startService(i)
+        Log.d("API checking", Build.VERSION.RELEASE.toString())
+
+        usedTime()
     }
 
     override fun onResume(){
@@ -210,6 +236,17 @@ class MainActivity : AppCompatActivity() {
         }else{//시간제한이 풀려 있을 때 누적시간을 보여줌
             signTime.setText("총 사용 시간")
             leftTimeTextview.setText(makeStringTime((spentTime/1000).toInt()))
+        }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        //서비스가 작동중이면 서비스 추가x
+        Log.d("onPause()","!!!!")
+        if(isServiceRunningCheck() == false) {
+            val i = Intent(applicationContext, TimeMeasureService::class.java)
+            applicationContext.startService(i)
+            Log.d("API checking", Build.VERSION.RELEASE.toString())
         }
     }
 }
