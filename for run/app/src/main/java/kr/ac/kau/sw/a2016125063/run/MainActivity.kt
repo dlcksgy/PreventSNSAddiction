@@ -10,6 +10,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
+import android.graphics.Color
 import android.os.Build
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
@@ -19,6 +20,9 @@ import android.widget.Button
 import android.widget.ImageButton
 import android.widget.ListView
 import android.widget.TextView
+import com.jjoe64.graphview.GraphView
+import com.jjoe64.graphview.series.DataPoint
+import com.jjoe64.graphview.series.LineGraphSeries
 import java.util.*
 
 class MainActivity : AppCompatActivity() {
@@ -145,11 +149,12 @@ class MainActivity : AppCompatActivity() {
     }
 
     //출처:
-    fun usedTime(){
+    fun usedTime(minusTime: Long): Long{
         val endTime = System.currentTimeMillis()
-        val beginTime = endTime - 1000*1000
+        val beginTime = endTime - minusTime
         val usageStatsManager: UsageStatsManager = this.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
         val usagesList = usageStatsManager.queryAndAggregateUsageStats(beginTime, endTime)
+        val stats = usageStatsManager.queryUsageStats(UsageStatsManager.INTERVAL_DAILY, beginTime, endTime)
         var timeSum = 0L
         for (usage in usagesList.values) {
             if(usage.totalTimeInForeground >= 1000L) {
@@ -158,11 +163,15 @@ class MainActivity : AppCompatActivity() {
                 timeSum += usage.totalTimeInForeground
             }
         }
+        for(usage in stats){
+            timeSum += usage.totalTimeInForeground
+        }
         println("all time --> "+timeSum/1000)
         println("endTime --> "+endTime)
         println("beginTime --> "+beginTime)
         //탑 액티비티가 바뀔때 바뀐내용이 뒤늦게 나온다.
         //만일 인터넷앱을 사용한뒤 유튜브로 바꾼다면 화면이 바뀐뒤 인터넷, 유튜브로 들어가도 유튜브가 로그에 나오지 않음
+        return timeSum
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -197,7 +206,12 @@ class MainActivity : AppCompatActivity() {
         applicationContext.startService(i)
         Log.d("API checking", Build.VERSION.RELEASE.toString())
 
-        usedTime()
+        val graph = findViewById<GraphView>(R.id.graph)
+        val data = Array<DataPoint>(24, {i -> DataPoint(i.toDouble(),(usedTime((24-i)*60*60*1000L)/1000/60L).toDouble()) })
+        var series: LineGraphSeries<DataPoint> = LineGraphSeries(data)
+        series.isDrawDataPoints = true
+        series.dataPointsRadius = 8F
+        graph.addSeries(series)
     }
 
     override fun onResume(){

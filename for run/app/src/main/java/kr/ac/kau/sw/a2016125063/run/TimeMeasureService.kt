@@ -90,7 +90,7 @@ var time: Int = 0//어플시작 시간 측정
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         Log.d("TimeMeasureService","onStartCommand")
         //if(!isServiceRunningCheck()) {
-            timer.schedule(monitor,0,1000)
+            //timer.schedule(monitor,0,1000)
         //}
         return super.onStartCommand(intent, flags, startId)
     }
