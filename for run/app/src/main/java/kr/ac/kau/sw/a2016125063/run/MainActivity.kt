@@ -72,7 +72,7 @@ class MainActivity : AppCompatActivity() {
         val usage = applicationContext.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
         val endTime = System.currentTimeMillis()
         val beginTime = endTime - 1000*1000
-        val stats = usage.queryUsageStats(UsageStatsManager.INTERVAL_WEEKLY, beginTime, endTime)
+        val stats = usage.queryUsageStats(UsageStatsManager.INTERVAL_DAILY, beginTime, endTime)
         //이상한점1: INTERVAL_WEEKLY나 INTERVAL_DAILY나 시작 시간과 끝시간이 같으면 동일한 결과를 뽑아와야할 것 같은데 그렇지 않음.
         //이상한점2: 내가 알기로는 beginTime을 만들때 빼주는 시간은 밀리초로 대략 16분 이상 정도인데 실제 결과값은 12시간을 상회한다.
         //https://stackoverflow.com/questions/36238481/android-usagestatsmanager-not-returning-correct-daily-results
@@ -154,13 +154,13 @@ class MainActivity : AppCompatActivity() {
         val beginTime = endTime - minusTime
         val usageStatsManager: UsageStatsManager = this.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
         val usagesList = usageStatsManager.queryAndAggregateUsageStats(beginTime, endTime)
-        val stats = usageStatsManager.queryUsageStats(UsageStatsManager.INTERVAL_DAILY, beginTime, endTime)
+        val stats = usageStatsManager.queryUsageStats(UsageStatsManager.INTERVAL_DAILY, beginTime, beginTime+60*60*1000L)
         var timeSum = 0L
         for (usage in usagesList.values) {
             if(usage.totalTimeInForeground >= 1000L) {
                 print("packageName --> " + usage.packageName)
                 println(",  usedTime -->" + usage.totalTimeInForeground/1000)
-                timeSum += usage.totalTimeInForeground
+                //timeSum += usage.totalTimeInForeground
             }
         }
         for(usage in stats){

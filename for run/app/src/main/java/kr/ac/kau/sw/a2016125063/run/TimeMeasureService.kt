@@ -11,8 +11,11 @@ import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
 import android.os.Build
+import android.os.Handler
 import android.os.IBinder
+import android.os.Message
 import android.util.Log
+import android.widget.Toast
 import java.util.*
 
 /**
@@ -25,6 +28,13 @@ var time: Int = 0//어플시작 시간 측정
     var app: String = ""//어플 관리
     var  dbHelper: DBHelper? = null
 
+    private val handler = object : Handler() {
+        override fun handleMessage(msg: Message) {
+            if (msg.arg1 == 1)
+                Toast.makeText(applicationContext, "빼애애애애애애애애애애애애애액", Toast.LENGTH_LONG).show()
+        }
+    }
+
     override fun onBind(intent: Intent?): IBinder? {
         return null
     }
@@ -35,63 +45,34 @@ var time: Int = 0//어플시작 시간 측정
         Log.d("TimeMeasureService","onCreate")
     }
 
-    var count: Int = 0//test용
-    val timer = Timer()
-    val monitor = object: TimerTask(){
-        override fun run() {
-            Log.d("timer",count.toString())
-            count++
-
-            val am = applicationContext.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
-            val info: List<ActivityManager.RunningTaskInfo> = am.getRunningTasks(1)
-            val topActivity: ComponentName = info.get(0).topActivity
-            val activityName = topActivity.packageName
-            //Log.d("service",activityName)
-
-            val usage = applicationContext.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
-            val endTime = System.currentTimeMillis()
-            val beginTime = endTime - 1000*1000
-            val stats = usage.queryUsageStats(UsageStatsManager.INTERVAL_WEEKLY, beginTime, endTime)
-            if (stats != null) {
-                //사용된 앱 목록만 집어넣기
-                //var usedApps: ArrayList<UsageStats> = ArrayList<UsageStats>()
-                var usedApps = ArrayList<Pair<String,Long>>()
-                for (usageStats in stats) {
-                    //사용 시간 0인 것들 골라내기
-                    if (usageStats.totalTimeInForeground >= 1000L) {
-                        usedApps.add(Pair(usageStats.packageName, usageStats.lastTimeUsed))
-                    }
-                }
-                //누적 사용시간으로 정렬
-                usedApps.sortBy { it.second }
-                Log.d("endTime --> ",endTime.toString())
-                println("the latest used app --> "+usedApps[usedApps.size-1].first+"  //  time --> "+usedApps[usedApps.size-1].second)
-                //Log.d("used App amount ", usedApps.size.toString())
-            }
-
-
-            if(app != activityName){
-                if(app != "") {//탑액티비티의 이름이 달라질때 마다 실행
-                    //val acTime = dbHelper!!.getTime(app)
-                    //dbHelper!!.updateTime(Pair(app, acTime + ((System.currentTimeMillis() / 1000).toInt() - time)))
-                }
-                app = activityName
-                time = (System.currentTimeMillis()/1000).toInt()
-
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        Log.d("Service : ","onStartCommand")
+        val timer = Timer()
+        val task = object : TimerTask() {
+            override fun run() {
+                Log.d("run : ","task running")
                 val top = getForegroundPackageNameClassNameByUsageStats()
                 Log.d("getLauncherTopApp : ",
                         getLauncherTopApp(this@TimeMeasureService, getSystemService(Service.ACTIVITY_SERVICE) as ActivityManager))
-                Log.d(ContentValues.TAG,top[0])
-                getForegroundActivity()
+                Log.d("",top[0])
+
+                val temp = getLauncherTopApp(this@TimeMeasureService, getSystemService(Service.ACTIVITY_SERVICE) as ActivityManager)
+                if(app != temp){
+                    if(temp == "failed"){//앱이 그대로 사용중임
+                        //스레드에서 토스트메시지를 직접 띄울 수 없기 때문에 핸들러를 이용
+                        // 출처 : https://stackoverflow.com/questions/7185942/error-while-dispaying-an-toast-message-cant-create-handler-inside-thread-that
+                        if(OptionActivity.appLimitList.indexOf(app) != -1) {//제한된 앱을 사용중일 때
+                            val msg = handler.obtainMessage()
+                            msg.arg1 = 1
+                            handler.sendMessage(msg)
+                        }
+                    }else{//다른 앱으로 바뀜
+                        app = temp
+                    }
+                }
             }
         }
-    }
-
-    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        Log.d("TimeMeasureService","onStartCommand")
-        //if(!isServiceRunningCheck()) {
-            //timer.schedule(monitor,0,1000)
-        //}
+        timer.schedule(task, 0, 5000)  // delay 초 후 run을 실행하고 period/1000초마다 실행
         return super.onStartCommand(intent, flags, startId)
     }
 
@@ -144,43 +125,5 @@ var time: Int = 0//어플시작 시간 측정
             }
         }
         return arrayOf<String>(packageNameByUsageStats, classByUsageStats)
-    }
-
-    fun isServiceRunningCheck(): Boolean{
-        //작동중인 서비스 확인
-        //출처: http://darkcher.tistory.com/184
-        val manager: ActivityManager = this.getSystemService(Activity.ACTIVITY_SERVICE) as ActivityManager
-        for (service: ActivityManager.RunningServiceInfo in manager.getRunningServices(Integer.MAX_VALUE)) {
-            if("kr.ac.kau.sw.a2016125063.preventsnsaddiction.TimeMeasureService".equals(service.service.className.toString())){
-                Log.d("service running check","service is running")
-                return true
-            }
-        }
-        Log.d("service running check","service is not running")
-        return false
-    }
-
-    //출처: https://stackoverflow.com/questions/42942986/android-6-0-usageevents-method-usagestatsmanger-queryevents-is-giving-coun
-    fun getForegroundActivity() {
-        val endTime = System.currentTimeMillis()
-        val beginTime = endTime - 5000
-        val usageStatsManager: UsageStatsManager = this.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
-
-        if (usageStatsManager != null) {
-            val queryEvents: UsageEvents = usageStatsManager.queryEvents(beginTime, endTime)
-
-            if (queryEvents != null) {
-                var event: UsageEvents.Event
-                while (queryEvents.hasNextEvent()) {
-                    var eventAux: UsageEvents.Event = UsageEvents.Event()
-                    queryEvents.getNextEvent(eventAux)
-                    if (eventAux.eventType == UsageEvents.Event.MOVE_TO_FOREGROUND) {
-                        event = eventAux;
-                        Log.d("getForeground",event.packageName)
-                        Log.d("getForeground",event.className)
-                    }
-                }
-            }
-        }
     }
 }

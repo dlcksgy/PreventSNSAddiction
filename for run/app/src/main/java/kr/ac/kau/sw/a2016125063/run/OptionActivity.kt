@@ -22,6 +22,10 @@ import java.util.ArrayList
 class OptionActivity: AppCompatActivity() {
     //DB에 넣을 데이터 배열
     var data = Array<Int>(8, {0})
+    //앱 제한 목록 배열
+    companion object {
+        var appLimitList = ArrayList<String>()
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -84,13 +88,30 @@ class OptionActivity: AppCompatActivity() {
             Log.d("setOnClickListener","app limit textview is clicked")
             createDialog()
         }
+    }
 
-        /*
-        * alertDialog
-        * custom listview
-        * DB
-        */
+    //옵션 설정을 하다가 앱을 종료해 버리면 저장되지 말아야할 시간이 저장됨.
+    override fun onPause() {
+        super.onPause()
+        //db를 다루기위한 dbHelper
+        val dbHelper: DBHelper = DBHelper(applicationContext, "Settings.db", null, 1)
+        if(data[3] >= 24 || data[4] >= 60 || data[5] >= 60){//설정할 수 없는 시간
+            //토스트창 띄우기
+            //춮처// http://h5bak.tistory.com/92
+            val toast: Toast = Toast.makeText(applicationContext, "설정할 수 없는 시간입니다.\n설정불가능 시간이 0으로 초기화 됩니다.", Toast.LENGTH_SHORT)
+            toast.setGravity(Gravity.CENTER, 0, 0)
+            toast.show()
+            //시간 초기화
+            if(data[3] >= 24) data[3] = 0
+            if(data[4] >= 60) data[4] = 0
+            if(data[5] >= 60) data[5] = 0
 
+            //기존 데이터 삭제
+            dbHelper.deleteSettings()
+            //데이터 가져와서 DB에 삽입
+            dbHelper.insertSettings(data)
+            dbHelper.getSettings()
+        }
     }
 
     override fun onBackPressed() {//백버튼으로 값 저장하기
@@ -156,12 +177,14 @@ class OptionActivity: AppCompatActivity() {
         //설치된 패키지 목록 뽑기
         //출처//http://www.masterqna.com/android/23456/%EC%84%A4%EC%B9%98%EB%90%9C-%ED%8C%A8%ED%82%A4%EC%A7%80-%EB%AA%A9%EB%A1%9D-%EB%BD%91%EB%8A%94-%EB%B0%A9%EB%B2%95
         var appDataList = ArrayList<DialogItem>()//커스텀 리스트뷰에 사용
+        var appDataPackageName = ArrayList<String>()//서비스에서 핸들러를 제어하는데 사용되는 패키지명
         val pm: PackageManager = getPackageManager()
         val packs = pm.getInstalledApplications(PackageManager.GET_META_DATA)
         for(app: ApplicationInfo in packs){
             val intent: Intent? = packageManager.getLaunchIntentForPackage(app.packageName)
             if(intent != null) {
                 appDataList.add(DialogItem(app.loadIcon(pm), app.loadLabel(pm).toString()))
+                appDataPackageName.add(app.packageName.toString())
                 //Log.d("app list dialog",app.packageName.toString())
                 print("app list dialog  "+app.packageName.toString()+"    ")
                 println(app.loadLabel(pm).toString())
@@ -199,15 +222,19 @@ class OptionActivity: AppCompatActivity() {
                 val checkedItems = listView.checkedItemPositions
                 val dataSize:Int = appDataList.size-1
                 //limit table에 넣을 배열
-                var limitList: ArrayList<String> = ArrayList<String>()
+                var limitList = ArrayList<String>()
+                //limit table에 해당하는 패키지
+                var limitPackageList = ArrayList<String>()
                 for(i:Int in 0..dataSize){
                     if(checkedItems[i]){
                         limitList.add(appDataList[i].appName!!)
+                        limitPackageList.add(appDataPackageName[i])
                         Log.d("checked Items --> ",appDataList[i].appName)
                     }
                 }
                 dbHelper.deleteLimitation()
                 dbHelper.insertLimitation(limitList)
+                appLimitList = limitPackageList //앱 제한 서비스에서 사용될 것.
                 Log.d("limit app count",dbHelper.getLimitElementCount().toString())
             }
         })
