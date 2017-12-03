@@ -22,9 +22,15 @@ class DataBases{
                 timeLimitMinute+" INTEGER, "+timeLimitsecond+" INTEGER, "+
                 initializingHour+" INTEGER, "+initializingMinute+" INTEGER);"
 
+        val appNameTime = "appName"
+        val acTime = "accumulatedTime"
+        val _TABLENAME_TIME = "timeTable"
+        val _CREATE_TIME = "CREATE TABLE IF NOT EXISTS "+_TABLENAME_TIME+
+                "("+appNameTime+" TEXT, "+acTime+" INTEGER);"
+
         val appName = "appName"
         val _TABLENAME_LIMIT = "limitTable"
-        val _CREATE_TIME = "CREATE TABLE IF NOT EXISTS "+ _TABLENAME_LIMIT +
+        val _CREATE_LIMIT = "CREATE TABLE IF NOT EXISTS "+ _TABLENAME_LIMIT +
                 "("+appName+" TEXT);"
     }
 }

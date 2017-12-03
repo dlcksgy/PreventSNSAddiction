@@ -136,6 +136,45 @@ class MainActivity : AppCompatActivity() {
         return sortedList
     }
 
+    fun tableAndItem2(): ArrayList<ListViewItem>{
+        //DB접근에 필요한 db 관리자
+        val dbHelper: DBHelper = DBHelper(applicationContext, "Settings.db", null, 1)
+
+        //내 핸드폰 내의 앱 리스트 받아오기(앱 아이콘,패키지명,이름)
+        //출처//http://blog.naver.com/pluulove84/100153350054
+        var appDataList = ArrayList<ListViewItem>()//커스텀 리스트뷰에 사용
+        var packageNameList = ArrayList<String>()//time 테이블 생성에 사용
+        val pm: PackageManager = getPackageManager()
+        val packs = pm.getInstalledApplications(PackageManager.GET_META_DATA)
+
+        //모두 정돈된 데이터가 들어갈 리스트 (이 함수의 반환값)
+        var sortedList = ArrayList<ListViewItem>()
+        //핸드폰에 설치된 앱의 아이콘과 앱이름, 패키지명 가져오기
+        for(app:ApplicationInfo in packs){
+            appDataList.add(ListViewItem(app.loadIcon(pm), app.loadLabel(pm).toString(), app.packageName.toString()))
+        }
+
+        //time table이 없으면 만들고 초기화
+        if(dbHelper.getTimeElementCount() == 0){
+            for(app:ApplicationInfo in packs){
+                packageNameList.add(app.packageName.toString())
+            }
+            dbHelper.initializeTime(packageNameList)
+        }
+
+        //일단은 acTime에 package이름을 넣어 정렬
+        appDataList.sortBy { it.accumulatedTime }
+        for(app in appDataList){
+            val acTime = dbHelper.getTime(app.accumulatedTime!!)
+            if(acTime != 0){//저장된 시간이 0이 아닐 때
+                app.accumulatedTime = makeStringTime(acTime)
+                sortedList.add(app)
+            }
+        }
+
+        return sortedList
+    }
+
     fun isServiceRunningCheck(): Boolean{
         //작동중인 서비스 확인
         //출처: http://darkcher.tistory.com/184
@@ -203,9 +242,10 @@ class MainActivity : AppCompatActivity() {
         }
 
         val i = Intent(applicationContext, TimeMeasureService::class.java)
-        applicationContext.startService(i)
+        //applicationContext.startService(i)
         Log.d("API checking", Build.VERSION.RELEASE.toString())
 
+        //수정 필요 DB를 하나 더 만들고 시간마다 저장하는걸로.
         val graph = findViewById<GraphView>(R.id.graph)
         val data = Array<DataPoint>(24, {i -> DataPoint(i.toDouble(),(usedTime((24-i)*60*60*1000L)/1000/60L).toDouble()) })
         var series: LineGraphSeries<DataPoint> = LineGraphSeries(data)
@@ -224,7 +264,7 @@ class MainActivity : AppCompatActivity() {
         var listView: ListView = findViewById<ListView>(R.id.app_list)
         //어뎁터 생성
         //var listViewAdapter: ListViewAdapter = ListViewAdapter(appDataList)
-        listViewAdapter = ListViewAdapter(this, tableAndItem())
+        listViewAdapter = ListViewAdapter(this, tableAndItem2())
         //어뎁터 설정
         listView.adapter = listViewAdapter
         //아이템 추가

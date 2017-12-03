@@ -25,8 +25,6 @@ import java.util.*
  * https://stackoverflow.com/questions/44789492/convert-indefinitely-running-runnable-from-java-to-kotlin
  */
 class TimeMeasureService: Service() {//서비스가 죽지 않게 만들기
-    var time: Int = 0//어플시작 시간 측정
-    var app: String = ""//어플 관리
     var dbHelper: DBHelper? = null
 
     private val handler = object : Handler() {
@@ -51,6 +49,9 @@ class TimeMeasureService: Service() {//서비스가 죽지 않게 만들기
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         Log.d("Service : ","onStartCommand")
+        var time: Int = 0//어플시작 시간 측정
+        var app: String = ""//어플 관리
+
         val timer = Timer()
         val task = object : TimerTask() {
             override fun run() {
@@ -60,9 +61,9 @@ class TimeMeasureService: Service() {//서비스가 죽지 않게 만들기
                         getLauncherTopApp(this@TimeMeasureService, getSystemService(Service.ACTIVITY_SERVICE) as ActivityManager))
                 Log.d("",top[0])
 
-                val temp = getLauncherTopApp(this@TimeMeasureService, getSystemService(Service.ACTIVITY_SERVICE) as ActivityManager)
-                if(app != temp){
-                    if(temp == "failed"){//앱이 그대로 사용중임
+                val topActivity: String = getLauncherTopApp(this@TimeMeasureService, getSystemService(Service.ACTIVITY_SERVICE) as ActivityManager)
+                if(app != topActivity){
+                    if(topActivity == "failed"){//앱이 그대로 사용중임
                         //스레드에서 토스트메시지를 직접 띄울 수 없기 때문에 핸들러를 이용
                         // 출처 : https://stackoverflow.com/questions/7185942/error-while-dispaying-an-toast-message-cant-create-handler-inside-thread-that
                         if(OptionActivity.appLimitList.indexOf(app) != -1) {//제한된 앱을 사용중일 때
@@ -77,13 +78,18 @@ class TimeMeasureService: Service() {//서비스가 죽지 않게 만들기
                             intent.addFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
                             startActivity(intent)
                         }
-                    }else{//다른 앱으로 바뀜
-                        app = temp
+                    }else {//사용중인 앱이 바뀌었을 때
+                        if(app != "") {//처음 상태가 아닐때
+                            val acTime = dbHelper!!.getTime(app)
+                            dbHelper!!.updateTime(Pair(app, acTime + ((System.currentTimeMillis() / 1000).toInt() - time)))
+                        }
+                        app = topActivity
+                        time = (System.currentTimeMillis() / 1000).toInt()
                     }
                 }
             }
         }
-        timer.schedule(task, 0, 5000)  // delay 초 후 run을 실행하고 period/1000초마다 실행
+        timer.schedule(task, 0, 1000)  // delay 초 후 run을 실행하고 period/1000초마다 실행
         return super.onStartCommand(intent, flags, startId)
     }
 

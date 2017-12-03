@@ -42,7 +42,7 @@
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
                 <action android:name="android.intent.action.PACKAGE_ADDED" />
                 <action android:name="android.intent.action.PACKAGE_REPLACED" />
-
+                <!--앱이 설치되었을 때 Receiver에서 DB에 값을 추가해주면 될 것 같다.-->
                 <data android:scheme="package" />
             </intent-filter>
         </receiver>

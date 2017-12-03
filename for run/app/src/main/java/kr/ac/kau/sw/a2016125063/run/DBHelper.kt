@@ -9,6 +9,7 @@ import android.util.Log
 /**
  * Created by 이은솔 on 2017-09-20.
  * 출처: http://blog.naver.com/PostView.nhn?blogId=hee072794&logNo=220619425456
+ * 새로운 앱을 다운로드 받았을 때 테이블에 추가하는 기능을 구현해야함
  * */
 class DBHelper(context: Context, name: String, factory: SQLiteDatabase.CursorFactory?, version: Int)
     : SQLiteOpenHelper(context, name, factory, version) {
@@ -20,6 +21,8 @@ class DBHelper(context: Context, name: String, factory: SQLiteDatabase.CursorFac
         //새로운 테이블 생성
         db?.execSQL(DataBases._CREATE_SETTINGS)
         Log.d("DBHelper","settings table created")
+        db?.execSQL(DataBases._CREATE_LIMIT)
+        Log.d("DBHelper","limit table created")
         db?.execSQL(DataBases._CREATE_TIME)
         Log.d("DBHelper","time table created")
     }
@@ -77,6 +80,45 @@ class DBHelper(context: Context, name: String, factory: SQLiteDatabase.CursorFac
         }
         return count
     }
+
+
+    fun initializeTime(data: ArrayList<String>){
+        //timeTable을 초기화 할때 처음에만 만듦
+        val db: SQLiteDatabase = writableDatabase
+        for(i: String in data){
+            db.execSQL("INSERT INTO "+DataBases._TABLENAME_TIME+" VALUES('"+i+"', "+0+");")
+        }
+        Log.d("initializeTime","time initialized")
+        db.close()
+    }
+
+    fun updateTime(data: Pair<String,Int>){
+        //바뀐 시간들 업데이트
+        val db: SQLiteDatabase = writableDatabase
+        db.execSQL("UPDATE "+DataBases._TABLENAME_TIME+" SET "+
+                DataBases.acTime+" = "+data.second+" WHERE "+DataBases.appNameTime+" = '"+data.first+"';")
+        Log.d("updateTime","time changed sucessfully -> "+data.second.toString())
+        db.close()
+    }
+
+    fun getTime(pakageName: String): Int{
+        val db: SQLiteDatabase = readableDatabase
+        var cursor: Cursor = db.rawQuery("SELECT "+DataBases.acTime+" FROM "+DataBases._TABLENAME_TIME+
+                " WHERE "+DataBases.appNameTime+" = '"+pakageName+"'",null)
+        cursor.moveToNext()
+        return cursor.getInt(0)
+    }
+
+    fun getTimeElementCount(): Int{
+        var count: Int = 0
+        val db: SQLiteDatabase = readableDatabase
+        var cursor: Cursor = db.rawQuery("SELECT * FROM "+DataBases._TABLENAME_TIME,null)
+        while(cursor.moveToNext()){
+            count+=1
+        }
+        return count
+    }
+
 
     fun insertLimitation(data: ArrayList<String>){
         //limitTable을 초기화 할때 처음에만 만듦
