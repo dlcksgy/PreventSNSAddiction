@@ -2,6 +2,7 @@ package kr.ac.kau.sw.a2016125063.preventsnsaddiction
 
 import android.app.Activity
 import android.app.ActivityManager
+import android.app.PendingIntent
 import android.app.Service
 import android.app.usage.UsageEvents
 import android.app.usage.UsageStats
@@ -24,14 +25,17 @@ import java.util.*
  * https://stackoverflow.com/questions/44789492/convert-indefinitely-running-runnable-from-java-to-kotlin
  */
 class TimeMeasureService: Service() {//서비스가 죽지 않게 만들기
-var time: Int = 0//어플시작 시간 측정
+    var time: Int = 0//어플시작 시간 측정
     var app: String = ""//어플 관리
-    var  dbHelper: DBHelper? = null
+    var dbHelper: DBHelper? = null
 
     private val handler = object : Handler() {
         override fun handleMessage(msg: Message) {
-            if (msg.arg1 == 1)
+            if(msg.arg1 == 0){
+            }
+            if (msg.arg1 == 1) {
                 Toast.makeText(applicationContext, "빼애애애애애애애애애애애애애액", Toast.LENGTH_LONG).show()
+            }
         }
     }
 
@@ -63,8 +67,15 @@ var time: Int = 0//어플시작 시간 측정
                         // 출처 : https://stackoverflow.com/questions/7185942/error-while-dispaying-an-toast-message-cant-create-handler-inside-thread-that
                         if(OptionActivity.appLimitList.indexOf(app) != -1) {//제한된 앱을 사용중일 때
                             val msg = handler.obtainMessage()
-                            msg.arg1 = 1
+                            msg.arg1 = OptionActivity.timeLimitSetting
                             handler.sendMessage(msg)
+                            //인텐드 각종 플래그 태그들
+                            //출처//http://theeye.pe.kr/archives/1298
+                            val intent: Intent = Intent(applicationContext, LockActivity::class.java)
+                            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                            intent.addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS)
+                            intent.addFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
+                            startActivity(intent)
                         }
                     }else{//다른 앱으로 바뀜
                         app = temp

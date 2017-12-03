@@ -22,9 +22,9 @@ import java.util.ArrayList
 class OptionActivity: AppCompatActivity() {
     //DB에 넣을 데이터 배열
     var data = Array<Int>(8, {0})
-    //앱 제한 목록 배열
     companion object {
-        var appLimitList = ArrayList<String>()
+        var appLimitList = ArrayList<String>()//앱 제한 목록 배열
+        var timeLimitSetting: Int = 0//시간 제한 설정
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -155,6 +155,9 @@ class OptionActivity: AppCompatActivity() {
         //레이아웃에서 데이터 가져와서 DB에 삽입
         dbHelper.insertSettings(data)
         dbHelper.getSettings()
+
+        //설정 셋팅
+        timeLimitSetting = data[0]
 
         //백버튼 막기
         //출처// http://migom.tistory.com/14
