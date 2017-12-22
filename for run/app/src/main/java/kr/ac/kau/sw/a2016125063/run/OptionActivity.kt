@@ -90,6 +90,11 @@ class OptionActivity: AppCompatActivity() {
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+
+    }
+
     //옵션 설정을 하다가 앱을 종료해 버리면 저장되지 말아야할 시간이 저장됨.
     override fun onPause() {
         super.onPause()
@@ -206,7 +211,7 @@ class OptionActivity: AppCompatActivity() {
         val listView = popUpLayout.findViewById<ListView>(R.id.dialog_app_listview)
         val dialogAdapter = DialogAdapter(this, appDataList)
         listView.adapter = dialogAdapter
-
+/*
         //DB값을 이용해서 저장된 앱은 표시해주기
         var i: Int = 0; var k: Int = 0
         val limitAppSize = limitApps.size
@@ -217,9 +222,10 @@ class OptionActivity: AppCompatActivity() {
             }
             k+=1
         }
-
+*/
         val builder: AlertDialog.Builder = AlertDialog.Builder(this)
         builder.setTitle("접근 제한 목록")
+        /*
         builder.setPositiveButton("설정", object: DialogInterface.OnClickListener{
             override fun onClick(p0: DialogInterface?, p1: Int) {
                 val checkedItems = listView.checkedItemPositions
@@ -242,6 +248,33 @@ class OptionActivity: AppCompatActivity() {
             }
         })
         builder.setNegativeButton("취소", null)
+        */
+        /*
+        builder.setPositiveButton("설정", { DialogInterface, Int ->
+            val checkedItems = listView.checkedItemPositions
+            val dataSize:Int = appDataList.size-1
+            //limit table에 넣을 배열
+            var limitList = ArrayList<String>()
+            //limit table에 해당하는 패키지
+            var limitPackageList = ArrayList<String>()
+            for(i:Int in 0..dataSize){
+                if(checkedItems[i]){
+                    limitList.add(appDataList[i].appName!!)
+                    limitPackageList.add(appDataPackageName[i])
+                    Log.d("checked Items --> ",appDataList[i].appName)
+                }
+            }
+            dbHelper.deleteLimitation()
+            dbHelper.insertLimitation(limitList)
+            appLimitList = limitPackageList //앱 제한 서비스에서 사용될 것.
+            Log.d("limit app count",dbHelper.getLimitElementCount().toString())
+        })
+        */
+        builder.setPositiveButton("설정", object: DialogInterface.OnClickListener{
+            override fun onClick(p0: DialogInterface?, p1: Int) {
+            }
+        })
+        builder.setNegativeButton("취소",null)
         builder.setNeutralButton("초기화", object: DialogInterface.OnClickListener{
             override fun onClick(p0: DialogInterface?, p1: Int) {
             }
@@ -254,8 +287,20 @@ class OptionActivity: AppCompatActivity() {
         dialog.setCanceledOnTouchOutside(false)
         dialog.show()
 
+        //DB값을 이용해서 저장된 앱은 표시해주기
+        var i: Int = 0; var k: Int = 0
+        val limitAppSize = limitApps.size
+        while(i < limitAppSize){
+            if(limitApps[i] == appDataList[k].appName){//제한앱을 찾으면
+                listView.setItemChecked(k, true)
+                i+=1
+            }
+            k+=1
+        }
+
         //다이얼로그 버튼 눌러도 종료 안되게 하기
         //출처// http://fullstatck.tistory.com/13
+        /*
         dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setOnClickListener(object: View.OnClickListener {
             override fun onClick(p0: View?) {
                 for(i:Int in 0..appDataList.size-1){
@@ -263,5 +308,31 @@ class OptionActivity: AppCompatActivity() {
                 }
             }
         })
+        */
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
+            val checkedItems = listView.checkedItemPositions
+            val dataSize:Int = appDataList.size-1
+            //limit table에 넣을 배열
+            var limitList = ArrayList<String>()
+            //limit table에 해당하는 패키지
+            var limitPackageList = ArrayList<String>()
+            for(i:Int in 0..dataSize){
+                if(checkedItems[i]){
+                    limitList.add(appDataList[i].appName!!)
+                    limitPackageList.add(appDataPackageName[i])
+                    Log.d("checked Items --> ",appDataList[i].appName)
+                }
+            }
+            dbHelper.deleteLimitation()
+            dbHelper.insertLimitation(limitList)
+            appLimitList = limitPackageList //앱 제한 서비스에서 사용될 것.
+            Log.d("limit app count",dbHelper.getLimitElementCount().toString())
+        }
+
+        dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setOnClickListener {
+            for(i:Int in 0..appDataList.size-1){
+                listView.setItemChecked(i, false)
+            }
+        }
     }
 }

@@ -68,6 +68,7 @@ class DBHelper(context: Context, name: String, factory: SQLiteDatabase.CursorFac
             }
         }
         Log.d("getSettings()",logString)
+        db.close()
         return data
     }
 
@@ -78,6 +79,7 @@ class DBHelper(context: Context, name: String, factory: SQLiteDatabase.CursorFac
         while(cursor.moveToNext()){
             count+=1
         }
+        db.close()
         return count
     }
 
@@ -106,7 +108,9 @@ class DBHelper(context: Context, name: String, factory: SQLiteDatabase.CursorFac
         var cursor: Cursor = db.rawQuery("SELECT "+DataBases.acTime+" FROM "+DataBases._TABLENAME_TIME+
                 " WHERE "+DataBases.appNameTime+" = '"+pakageName+"'",null)
         cursor.moveToNext()
-        return cursor.getInt(0)
+        val time = cursor.getInt(0)
+        db.close()
+        return time
     }
 
     fun getTimeElementCount(): Int{
@@ -116,6 +120,7 @@ class DBHelper(context: Context, name: String, factory: SQLiteDatabase.CursorFac
         while(cursor.moveToNext()){
             count+=1
         }
+        db.close()
         return count
     }
 
@@ -146,6 +151,7 @@ class DBHelper(context: Context, name: String, factory: SQLiteDatabase.CursorFac
             limitApps.add(cursor.getString(0))
             Log.d("getLimitApp",limitApps[limitApps.size-1])
         }
+        db.close()
         return limitApps
     }
 
@@ -156,6 +162,7 @@ class DBHelper(context: Context, name: String, factory: SQLiteDatabase.CursorFac
         while(cursor.moveToNext()){
             count+=1
         }
+        db.close()
         return count
     }
 }

@@ -7,10 +7,7 @@ import android.app.Service
 import android.app.usage.UsageEvents
 import android.app.usage.UsageStats
 import android.app.usage.UsageStatsManager
-import android.content.ComponentName
-import android.content.ContentValues
-import android.content.Context
-import android.content.Intent
+import android.content.*
 import android.os.Build
 import android.os.Handler
 import android.os.IBinder
@@ -26,6 +23,7 @@ import java.util.*
  */
 class TimeMeasureService: Service() {//서비스가 죽지 않게 만들기
     var dbHelper: DBHelper? = null
+    var pReceiver: BootReceiver? = null
 
     private val handler = object : Handler() {
         override fun handleMessage(msg: Message) {
@@ -45,6 +43,17 @@ class TimeMeasureService: Service() {//서비스가 죽지 않게 만들기
         super.onCreate()
         dbHelper = DBHelper(this.baseContext, "Settings.db", null, 1)//DB다루기 위한 관리자
         Log.d("TimeMeasureService","onCreate")
+
+        //앱 설치, 삭제, 업데이트시 서비스 실행하기
+        //출처: http://ccdev.tistory.com/29?category=554483 [초보코딩왕의 Power Dev.]
+        pReceiver = BootReceiver()
+        var pFilter = IntentFilter()
+        pFilter.addAction(Intent.ACTION_PACKAGE_ADDED)
+        pFilter.addAction(Intent.ACTION_PACKAGE_REMOVED)
+        pFilter.addAction(Intent.ACTION_PACKAGE_REPLACED)
+        pFilter.addDataScheme("package")
+
+        registerReceiver(pReceiver, pFilter);
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -95,6 +104,9 @@ class TimeMeasureService: Service() {//서비스가 죽지 않게 만들기
 
     override fun onDestroy() {
         super.onDestroy()
+        if(pReceiver != null){
+            unregisterReceiver(pReceiver)
+        }
     }
 
     //참고 : https://github.com/lizixian18/AppLock/blob/master/app/src/main/java/com/lzx/lock/service/LockService.java

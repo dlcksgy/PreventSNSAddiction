@@ -162,12 +162,15 @@ class MainActivity : AppCompatActivity() {
             dbHelper.initializeTime(packageNameList)
         }
 
+        //누적시간 초기화
+        spentTime = 0L
         //일단은 acTime에 package이름을 넣어 정렬
         appDataList.sortBy { it.accumulatedTime }
         for(app in appDataList){
             val acTime = dbHelper.getTime(app.accumulatedTime!!)
             if(acTime != 0){//저장된 시간이 0이 아닐 때
                 app.accumulatedTime = makeStringTime(acTime)
+                spentTime += acTime.toLong()
                 sortedList.add(app)
             }
         }
@@ -180,7 +183,8 @@ class MainActivity : AppCompatActivity() {
         //출처: http://darkcher.tistory.com/184
         val manager: ActivityManager = this.getSystemService(Activity.ACTIVITY_SERVICE) as ActivityManager
         for (service: ActivityManager.RunningServiceInfo in manager.getRunningServices(Integer.MAX_VALUE)) {
-            if("kr.ac.kau.sw.a2016125063.preventsnsaddiction.TimeMeasureService".equals(service.service.className.toString())){
+            if("TimeMeasureService" in (service.service.className.toString())){
+                println("serviceName == "+service.service.className.toString())
                 return true
             }
         }
@@ -241,10 +245,6 @@ class MainActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
-        val i = Intent(applicationContext, TimeMeasureService::class.java)
-        //applicationContext.startService(i)
-        Log.d("API checking", Build.VERSION.RELEASE.toString())
-
         //수정 필요 DB를 하나 더 만들고 시간마다 저장하는걸로.
         val graph = findViewById<GraphView>(R.id.graph)
         val data = Array<DataPoint>(24, {i -> DataPoint(i.toDouble(),(usedTime((24-i)*60*60*1000L)/1000/60L).toDouble()) })
@@ -257,6 +257,8 @@ class MainActivity : AppCompatActivity() {
     override fun onResume(){
         Log.d("onResume","update")
         super.onResume()
+        //DB접근에 필요한 db 관리자
+        val dbHelper: DBHelper = DBHelper(applicationContext, "Settings.db", null, 1)
 
         //커스텀 리스트뷰 만들기
         //출처//http://recipes4dev.tistory.com/43
@@ -270,12 +272,11 @@ class MainActivity : AppCompatActivity() {
         //아이템 추가
         //listViewAdapter!!.notifyDataSetChanged()
 
+        println("spentTime ---> ${spentTime}")
         //시간을 가리키는 글
         val signTime = findViewById<TextView>(R.id.left_or_acculumated)
         //남은 시간 textview
         val leftTimeTextview = findViewById<TextView>(R.id.calculated_left_time)
-        //DB접근에 필요한 db 관리자
-        val dbHelper: DBHelper = DBHelper(applicationContext, "Settings.db", null, 1)
         //option 값 1.시간제한 셋팅 2.셀카제한 3.앱제한 4.시간 5.분 6.초 7.초기화 시 8.초기화 분
         val optionValue = dbHelper.getSettings()
         if(optionValue[0] == 1){//시간 제한이 걸려 있을 때
@@ -289,7 +290,7 @@ class MainActivity : AppCompatActivity() {
             }
         }else{//시간제한이 풀려 있을 때 누적시간을 보여줌
             signTime.setText("총 사용 시간")
-            leftTimeTextview.setText(makeStringTime((spentTime/1000).toInt()))
+            leftTimeTextview.setText(makeStringTime(spentTime.toInt()))
         }
     }
 
