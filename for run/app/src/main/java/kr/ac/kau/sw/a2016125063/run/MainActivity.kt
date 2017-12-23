@@ -183,7 +183,7 @@ class MainActivity : AppCompatActivity() {
         //출처: http://darkcher.tistory.com/184
         val manager: ActivityManager = this.getSystemService(Activity.ACTIVITY_SERVICE) as ActivityManager
         for (service: ActivityManager.RunningServiceInfo in manager.getRunningServices(Integer.MAX_VALUE)) {
-            if("TimeMeasureService" in (service.service.className.toString())){
+            if("kr.ac.kau.sw.a2016125063.preventsnsaddiction.TimeMeasureService".equals(service.service.className.toString())){
                 println("serviceName == "+service.service.className.toString())
                 return true
             }
@@ -222,6 +222,14 @@ class MainActivity : AppCompatActivity() {
         //타이틀바 없애기
         //출처: http://commin.tistory.com/63 [Commin의 일상코딩]
         setContentView(R.layout.activity_main)
+//나중에 삭제해야함
+        if(isServiceRunningCheck() == false) {
+            val i = Intent(applicationContext, TimeMeasureService::class.java)
+            //테스트 단계니깐 적용
+            //작동중인 서비스를 잘 못잡는것 같음
+            applicationContext.startService(i)
+            Log.d("API checking", Build.VERSION.RELEASE.toString())
+        }
 
         // GET_USAGE_STATS 권한 확인
         val appOps = this.getSystemService(Context.APP_OPS_SERVICE) as AppOpsManager
@@ -292,6 +300,12 @@ class MainActivity : AppCompatActivity() {
             signTime.setText("총 사용 시간")
             leftTimeTextview.setText(makeStringTime(spentTime.toInt()))
         }
+
+        if(isServiceRunningCheck()){
+            val intent = Intent(applicationContext, TimeMeasureService::class.java)
+            applicationContext.stopService(intent)
+            Log.d("onResume"," stopService")
+        }
     }
 
     override fun onPause() {
@@ -300,7 +314,9 @@ class MainActivity : AppCompatActivity() {
         Log.d("onPause()","!!!!")
         if(isServiceRunningCheck() == false) {
             val i = Intent(applicationContext, TimeMeasureService::class.java)
-            applicationContext.startService(i)
+            //테스트 단계니깐 적용
+            //작동중인 서비스를 잘 못잡는것 같음
+            //applicationContext.startService(i)
             Log.d("API checking", Build.VERSION.RELEASE.toString())
         }
     }

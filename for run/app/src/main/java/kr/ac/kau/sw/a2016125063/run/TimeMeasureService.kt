@@ -8,10 +8,7 @@ import android.app.usage.UsageEvents
 import android.app.usage.UsageStats
 import android.app.usage.UsageStatsManager
 import android.content.*
-import android.os.Build
-import android.os.Handler
-import android.os.IBinder
-import android.os.Message
+import android.os.*
 import android.util.Log
 import android.widget.Toast
 import java.util.*
@@ -34,6 +31,9 @@ class TimeMeasureService: Service() {//서비스가 죽지 않게 만들기
             }
         }
     }
+
+    val timer = Timer()
+    var task: TimerTask? = null
 
     override fun onBind(intent: Intent?): IBinder? {
         return null
@@ -60,17 +60,47 @@ class TimeMeasureService: Service() {//서비스가 죽지 않게 만들기
         Log.d("Service : ","onStartCommand")
         var time: Int = 0//어플시작 시간 측정
         var app: String = ""//어플 관리
+        val manager: ActivityManager = this.getSystemService(Activity.ACTIVITY_SERVICE) as ActivityManager//서비스 모니터용
+        //인텐드 각종 플래그 태그들
+        //출처//http://theeye.pe.kr/archives/1298
+        val intent: Intent = Intent(applicationContext, LockActivity::class.java)
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        intent.addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS)
+        intent.addFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
 
-        val timer = Timer()
-        val task = object : TimerTask() {
+        //휴대폰 화면의 on / off 확인
+        //출처: https://stackoverflow.com/questions/19350258/how-to-check-screen-on-off-status-in-onstop
+        val powerManager: PowerManager = getSystemService(Context.POWER_SERVICE) as PowerManager
+        var preScreenOn: Boolean = false
+        var nowScreenOn: Boolean
+        //val timer = Timer()
+        task = object : TimerTask() {
             override fun run() {
                 Log.d("run : ","task running")
                 val top = getForegroundPackageNameClassNameByUsageStats()
                 Log.d("getLauncherTopApp : ",
                         getLauncherTopApp(this@TimeMeasureService, getSystemService(Service.ACTIVITY_SERVICE) as ActivityManager))
                 Log.d("",top[0])
-
+                for (service: ActivityManager.RunningServiceInfo in manager.getRunningServices(Integer.MAX_VALUE)) {
+                    //println("serviceName == "+service.service.className.toString())
+                }
                 val topActivity: String = getLauncherTopApp(this@TimeMeasureService, getSystemService(Service.ACTIVITY_SERVICE) as ActivityManager)
+
+                //화면이 꺼졌을 때는 시간이 누적되어서는 안됨
+                //화면이 켜짐->꺼짐으로 바뀔 때 시간을 저장시켜주고 꺼져있으면 현재 시간만 계속 바꿔주면 됨
+                nowScreenOn = powerManager.isInteractive
+                println("nowScreenOn == ${nowScreenOn}, preScreenOn == ${preScreenOn}")
+                if(!nowScreenOn){
+                    if(preScreenOn){//이전:켜짐 지금:꺼짐
+                        val acTime = dbHelper!!.getTime(app)
+                        dbHelper!!.updateTime(Pair(app, acTime + ((System.currentTimeMillis() / 1000).toInt() - time)))
+                        time = (System.currentTimeMillis() / 1000).toInt()
+                        println("time stored")
+                    }
+                    //화면이 켜져있으면 시간이 바뀔일이 없기 때문에 문제가 안됨
+                    time = (System.currentTimeMillis()/1000).toInt()
+                }
+                //if(!isScreenOn) time = (System.currentTimeMillis()/1000).toInt()
                 if(app != topActivity){
                     if(topActivity == "failed"){//앱이 그대로 사용중임
                         //스레드에서 토스트메시지를 직접 띄울 수 없기 때문에 핸들러를 이용
@@ -79,12 +109,6 @@ class TimeMeasureService: Service() {//서비스가 죽지 않게 만들기
                             val msg = handler.obtainMessage()
                             msg.arg1 = OptionActivity.timeLimitSetting
                             handler.sendMessage(msg)
-                            //인텐드 각종 플래그 태그들
-                            //출처//http://theeye.pe.kr/archives/1298
-                            val intent: Intent = Intent(applicationContext, LockActivity::class.java)
-                            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                            intent.addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS)
-                            intent.addFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
                             startActivity(intent)
                         }
                     }else {//사용중인 앱이 바뀌었을 때
@@ -96,10 +120,22 @@ class TimeMeasureService: Service() {//서비스가 죽지 않게 만들기
                         time = (System.currentTimeMillis() / 1000).toInt()
                     }
                 }
+                preScreenOn = nowScreenOn
             }
         }
         timer.schedule(task, 0, 1000)  // delay 초 후 run을 실행하고 period/1000초마다 실행
-        return super.onStartCommand(intent, flags, startId)
+        //return super.onStartCommand(intent, flags, startId)
+
+        //서비스 강제종료시 다시 실행시키지 않게하기
+        //출처: http://blog.naver.com/PostView.nhn?blogId=chazlqhemsks&logNo=10184226234&parentCategoryNo=&categoryNo=83&viewDate=&isShowPopularPosts=false&from=postView
+        return Service.START_NOT_STICKY
+    }
+
+    override fun stopService(name: Intent?): Boolean {
+        timer.cancel()
+        timer.purge()
+        task!!.cancel()
+        return super.stopService(name)
     }
 
     override fun onDestroy() {

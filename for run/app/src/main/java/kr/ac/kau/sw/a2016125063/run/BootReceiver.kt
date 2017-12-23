@@ -3,6 +3,7 @@ package kr.ac.kau.sw.a2016125063.preventsnsaddiction
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.util.Log
 
 /**
@@ -10,7 +11,6 @@ import android.util.Log
  * 출처// http://ccdev.tistory.com/27
  */
 class BootReceiver: BroadcastReceiver() {
-
     override fun onReceive(context: Context?, intent: Intent?) {
         Log.d("BroadcastReceiver","onReceive")
         val action = intent?.getAction()
@@ -35,8 +35,16 @@ class BootReceiver: BroadcastReceiver() {
             context?.startService(i)
             Log.d("BootReceiver","PACKAGE_REPLACED")
         }
-        if(action.equals("flag")){
-            Log.d("broadcast","flag catched")
+        if(action.equals(Intent.ACTION_SCREEN_ON)){
+            val i = Intent(context, TimeMeasureService::class.java)
+            i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            context?.startService(i)
+            Log.d("BootReceiver","ACTION_SCREEN_ON")
+        }
+        if(action.equals(Intent.ACTION_SCREEN_OFF)){
+            val i = Intent(context, TimeMeasureService::class.java)
+            context?.stopService(i)
+            Log.d("BootReceiver","ACTION_SCREEN_OFF")
         }
     }
 }
