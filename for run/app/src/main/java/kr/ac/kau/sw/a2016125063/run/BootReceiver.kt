@@ -13,7 +13,7 @@ import android.util.Log
 class BootReceiver: BroadcastReceiver() {
     override fun onReceive(context: Context?, intent: Intent?) {
         Log.d("BroadcastReceiver","onReceive")
-        val action = intent?.getAction()
+        val action = intent?.action
         Log.d("BroadcastReceiverAction",action)
         //작동 안되는 이유를 찾음.
         //출처: https://blog.naver.com/chazlqhemsks/10183683280
@@ -34,17 +34,6 @@ class BootReceiver: BroadcastReceiver() {
             i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             context?.startService(i)
             Log.d("BootReceiver","PACKAGE_REPLACED")
-        }
-        if(action.equals(Intent.ACTION_SCREEN_ON)){
-            val i = Intent(context, TimeMeasureService::class.java)
-            i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            context?.startService(i)
-            Log.d("BootReceiver","ACTION_SCREEN_ON")
-        }
-        if(action.equals(Intent.ACTION_SCREEN_OFF)){
-            val i = Intent(context, TimeMeasureService::class.java)
-            context?.stopService(i)
-            Log.d("BootReceiver","ACTION_SCREEN_OFF")
         }
     }
 }

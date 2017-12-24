@@ -33,6 +33,7 @@
             android:screenOrientation="portrait" />
 
         <service android:name=".TimeMeasureService" />
+        <service android:name=".HourTimeService"/>
 
         <receiver
             android:name=".BootReceiver"
@@ -42,8 +43,6 @@
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
                 <action android:name="android.intent.action.PACKAGE_ADDED" />
                 <action android:name="android.intent.action.PACKAGE_REPLACED" />
-                <action android:name="android.intent.action.SCREEN_ON"/>
-                <action android:name="android.intent.action.SCREEN_OFF"/>
                 <!--앱이 설치되었을 때 Receiver에서 DB에 값을 추가해주면 될 것 같다.-->
                 <data android:scheme="package" />
             </intent-filter>

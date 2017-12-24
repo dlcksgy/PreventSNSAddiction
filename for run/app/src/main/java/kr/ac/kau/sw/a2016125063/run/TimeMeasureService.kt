@@ -11,6 +11,7 @@ import android.content.*
 import android.os.*
 import android.util.Log
 import android.widget.Toast
+import java.text.SimpleDateFormat
 import java.util.*
 
 /**
@@ -20,7 +21,7 @@ import java.util.*
  */
 class TimeMeasureService: Service() {//서비스가 죽지 않게 만들기
     var dbHelper: DBHelper? = null
-    var pReceiver: BootReceiver? = null
+    var pReceiver: BroadcastReceiver? = null
 
     private val handler = object : Handler() {
         override fun handleMessage(msg: Message) {
@@ -44,16 +45,42 @@ class TimeMeasureService: Service() {//서비스가 죽지 않게 만들기
         dbHelper = DBHelper(this.baseContext, "Settings.db", null, 1)//DB다루기 위한 관리자
         Log.d("TimeMeasureService","onCreate")
 
-        //앱 설치, 삭제, 업데이트시 서비스 실행하기
+        //앱 설치, 삭제, 업데이트시 서비스 실행하기 - 동적 인텐트필터 등록
         //출처: http://ccdev.tistory.com/29?category=554483 [초보코딩왕의 Power Dev.]
-        pReceiver = BootReceiver()
-        var pFilter = IntentFilter()
-        pFilter.addAction(Intent.ACTION_PACKAGE_ADDED)
-        pFilter.addAction(Intent.ACTION_PACKAGE_REMOVED)
-        pFilter.addAction(Intent.ACTION_PACKAGE_REPLACED)
-        pFilter.addDataScheme("package")
 
-        registerReceiver(pReceiver, pFilter);
+        //pReceiver = broadcastReceiver()
+        pReceiver = object: BroadcastReceiver(){
+            override fun onReceive(context: Context?, i: Intent?) {
+                val action = i?.action
+                if(action.equals(Intent.ACTION_TIME_TICK)){
+                    //각 시의 정각에 지금까지 사옹한 시간이 저장 된다.
+                    val time = hourMinute()
+                    if(time.first == 0){//시각이 정각일 때
+                        //val dbHelper = DBHelper(context!!, "Settings.db", null, 1)
+                        //dbHelper.updateHourTime(Pair(time.second, dbHelper.getTimeSum()))
+                        //println("updatedTime == "+dbHelper.getTimeSum())
+                        //mDBTask.execute()
+                        val hourTimeIntent = Intent(context, HourTimeService::class.java)
+                        hourTimeIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                        applicationContext.startService(hourTimeIntent)
+                        applicationContext.stopService(hourTimeIntent)
+                    }
+                    //내가 정한 시간에 시간이 초기화 된다.
+
+                    Log.d("BroadcastReceiver","ACTION_TIME_TICK")
+                }
+            }
+        }
+        var pFilter = IntentFilter()
+        //pFilter.addAction(Intent.ACTION_PACKAGE_ADDED)
+        //pFilter.addAction(Intent.ACTION_PACKAGE_REMOVED)
+        //pFilter.addAction(Intent.ACTION_PACKAGE_REPLACED)
+        //action time tick은 동적으로 해줘야 하는 듯
+        //출처: http://la-stranger.blogspot.kr/2013/09/blog-post_26.html
+        pFilter.addAction(Intent.ACTION_TIME_TICK)
+        //pFilter.addDataScheme("package")
+
+        applicationContext.registerReceiver(pReceiver, pFilter);
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -63,10 +90,10 @@ class TimeMeasureService: Service() {//서비스가 죽지 않게 만들기
         val manager: ActivityManager = this.getSystemService(Activity.ACTIVITY_SERVICE) as ActivityManager//서비스 모니터용
         //인텐드 각종 플래그 태그들
         //출처//http://theeye.pe.kr/archives/1298
-        val intent: Intent = Intent(applicationContext, LockActivity::class.java)
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        intent.addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS)
-        intent.addFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
+        val lockIntent: Intent = Intent(applicationContext, LockActivity::class.java)
+        lockIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        lockIntent.addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS)
+        lockIntent.addFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
 
         //휴대폰 화면의 on / off 확인
         //출처: https://stackoverflow.com/questions/19350258/how-to-check-screen-on-off-status-in-onstop
@@ -109,7 +136,7 @@ class TimeMeasureService: Service() {//서비스가 죽지 않게 만들기
                             val msg = handler.obtainMessage()
                             msg.arg1 = OptionActivity.timeLimitSetting
                             handler.sendMessage(msg)
-                            startActivity(intent)
+                            startActivity(lockIntent)
                         }
                     }else {//사용중인 앱이 바뀌었을 때
                         if(app != "") {//처음 상태가 아닐때
@@ -127,6 +154,7 @@ class TimeMeasureService: Service() {//서비스가 죽지 않게 만들기
         //return super.onStartCommand(intent, flags, startId)
 
         //서비스 강제종료시 다시 실행시키지 않게하기
+        //작동이 잘 안되는 듯 하다.
         //출처: http://blog.naver.com/PostView.nhn?blogId=chazlqhemsks&logNo=10184226234&parentCategoryNo=&categoryNo=83&viewDate=&isShowPopularPosts=false&from=postView
         return Service.START_NOT_STICKY
     }
@@ -140,9 +168,11 @@ class TimeMeasureService: Service() {//서비스가 죽지 않게 만들기
 
     override fun onDestroy() {
         super.onDestroy()
+
         if(pReceiver != null){
             unregisterReceiver(pReceiver)
         }
+
     }
 
     //참고 : https://github.com/lizixian18/AppLock/blob/master/app/src/main/java/com/lzx/lock/service/LockService.java
@@ -190,5 +220,19 @@ class TimeMeasureService: Service() {//서비스가 죽지 않게 만들기
             }
         }
         return arrayOf<String>(packageNameByUsageStats, classByUsageStats)
+    }
+
+    //현재 시간 출력하기
+    //출처: https://medium.com/@peteryun/android-how-to-print-current-date-and-time-in-java-45b884917c6f
+    fun hourMinute(): Pair<Int,Int>{
+        var date = Date()
+        val sdf_ampm = SimpleDateFormat("a").format(date).toString()
+        val sdf_m = SimpleDateFormat("mm").format(date).toInt()
+        var sdf_h = SimpleDateFormat("hh").format(date).toInt()
+        if(sdf_ampm == "오후") sdf_h += 12
+        if(sdf_h == 12 && sdf_ampm == "오전") sdf_h = 0
+        println("시 = ${sdf_h}, 분 = ${sdf_m}, "+sdf_ampm)
+
+        return Pair(sdf_m, sdf_h)
     }
 }
