@@ -7,6 +7,7 @@ package kr.ac.kau.sw.a2016125063.preventsnsaddiction
 //DataBase Table
 class DataBases{
     companion object{
+        //옵션에 해당하는 값을 넣을 테이블
         val isTimeLimited = "isTimeLimited"
         val isSelfie = "isSelfie"
         val isAppLimited = "isAppLimited"
@@ -22,15 +23,24 @@ class DataBases{
                 timeLimitMinute+" INTEGER, "+timeLimitsecond+" INTEGER, "+
                 initializingHour+" INTEGER, "+initializingMinute+" INTEGER);"
 
+        //앱의 누적 시간을 넣을 테이블
         val appNameTime = "appName"
         val acTime = "accumulatedTime"
         val _TABLENAME_TIME = "timeTable"
         val _CREATE_TIME = "CREATE TABLE IF NOT EXISTS "+_TABLENAME_TIME+
                 "("+appNameTime+" TEXT, "+acTime+" INTEGER);"
 
+        //앱 제한 목록을 넣을 테이블
         val appName = "appName"
         val _TABLENAME_LIMIT = "limitTable"
         val _CREATE_LIMIT = "CREATE TABLE IF NOT EXISTS "+ _TABLENAME_LIMIT +
                 "("+appName+" TEXT);"
+
+        //1시간 간격으로 사용된 시간을 넣을 테이블
+        val hour = "hour"
+        val hourTime = "hourTime"
+        val _TABLENAME_HOUR_TIME = "hourTimeTable"
+        val _CREATE_HOUR_TIME = "CREATE TABLE IF NOT EXISTS "+ _TABLENAME_HOUR_TIME +
+                "("+ hour + " INTEGER, " + hourTime+" INTEGER);"
     }
 }

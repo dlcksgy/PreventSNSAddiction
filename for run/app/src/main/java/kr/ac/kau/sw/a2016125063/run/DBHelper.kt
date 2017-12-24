@@ -25,6 +25,8 @@ class DBHelper(context: Context, name: String, factory: SQLiteDatabase.CursorFac
         Log.d("DBHelper","limit table created")
         db?.execSQL(DataBases._CREATE_TIME)
         Log.d("DBHelper","time table created")
+        db?.execSQL(DataBases._CREATE_HOUR_TIME)
+        Log.d("DBHelper","hour time table created")
     }
 
     override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) {
@@ -113,6 +115,17 @@ class DBHelper(context: Context, name: String, factory: SQLiteDatabase.CursorFac
         return time
     }
 
+    fun getTimeSum(): Int{//누적시간의 총합을 반환
+        val db: SQLiteDatabase = readableDatabase
+        var timeSum = 0
+        var cursor: Cursor = db.rawQuery("SELECT * FROM "+DataBases._TABLENAME_TIME,null)
+        while(cursor.moveToNext()){
+            timeSum += cursor.getInt(1)
+        }
+        db.close()
+        return timeSum
+    }
+
     fun getTimeElementCount(): Int{
         var count: Int = 0
         val db: SQLiteDatabase = readableDatabase
@@ -164,5 +177,49 @@ class DBHelper(context: Context, name: String, factory: SQLiteDatabase.CursorFac
         }
         db.close()
         return count
+    }
+
+    fun initializeHourTime(){
+        val db: SQLiteDatabase = writableDatabase
+        for(i: Int in 1..24){
+            db.execSQL("INSERT INTO "+DataBases._TABLENAME_HOUR_TIME+" VALUES("+i+", "+0+");")
+        }
+        Log.d("initializeTime","time initialized")
+        db.close()
+    }
+
+    fun getHourTimeElementCount(): Int{
+        var count: Int = 0
+        val db: SQLiteDatabase = readableDatabase
+        var cursor: Cursor = db.rawQuery("SELECT * FROM "+DataBases._TABLENAME_HOUR_TIME,null)
+        while(cursor.moveToNext()){
+            count+=1
+        }
+        db.close()
+        Log.d("getAllHourTime","")
+        return count
+    }
+
+    fun getAllHourTime(): Array<Int>{
+        val db: SQLiteDatabase = readableDatabase
+        var cursor: Cursor = db.rawQuery("SELECT * FROM "+DataBases._TABLENAME_HOUR_TIME,null)
+        var dataArray = Array<Int>(24, {i -> 0})
+        var idx = 0
+        while(cursor.moveToNext()){
+            dataArray[idx] = cursor.getInt(1)
+            idx += 1
+        }
+        db.close()
+        Log.d("getAllHourTime","")
+        return dataArray
+    }
+
+    fun updateHourTime(data: Pair<Int,Int>){
+        //바뀐 시간들 업데이트
+        val db: SQLiteDatabase = writableDatabase
+        db.execSQL("UPDATE "+DataBases._TABLENAME_HOUR_TIME+" SET "+
+                DataBases.hourTime+" = "+data.second+" WHERE "+DataBases.hour+" = "+data.first+";")
+        db.close()
+        Log.d("updateHourTime","time changed sucessfully -> "+data.second.toString())
     }
 }

@@ -20,9 +20,11 @@ import android.widget.Button
 import android.widget.ImageButton
 import android.widget.ListView
 import android.widget.TextView
+import com.jjoe64.graphview.DefaultLabelFormatter
 import com.jjoe64.graphview.GraphView
 import com.jjoe64.graphview.series.DataPoint
 import com.jjoe64.graphview.series.LineGraphSeries
+import java.text.NumberFormat
 import java.util.*
 
 class MainActivity : AppCompatActivity() {
@@ -253,13 +255,30 @@ class MainActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
-        //수정 필요 DB를 하나 더 만들고 시간마다 저장하는걸로.
+        val dbHelper: DBHelper = DBHelper(applicationContext, "Settings.db", null, 1)
+        //hour time table이 없으면 만들고 초기화
+        if(dbHelper.getHourTimeElementCount() == 0){
+            dbHelper.initializeHourTime()
+        }
+        val hourData = dbHelper.getAllHourTime()
+
+        //시간마다 저장된 배열을 사용한다.
         val graph = findViewById<GraphView>(R.id.graph)
         val data = Array<DataPoint>(24, {i -> DataPoint(i.toDouble(),(usedTime((24-i)*60*60*1000L)/1000/60L).toDouble()) })
+        for(i:Int in 0..23){
+            data[i] = DataPoint(i.toDouble(),hourData[i].toDouble())
+        }
+        //val data = Array<DataPoint>(24, {i -> DataPoint(i.toDouble(),(hourData[i]).toDouble()) })
         var series: LineGraphSeries<DataPoint> = LineGraphSeries(data)
         series.isDrawDataPoints = true
         series.dataPointsRadius = 8F
         graph.addSeries(series)
+//그래프 모양 수정 필요
+        graph.gridLabelRenderer.labelFormatter = object: DefaultLabelFormatter() {
+            override fun formatLabel(value: Double, isValueX: Boolean): String {
+                return super.formatLabel(value, isValueX)
+            }
+        }
     }
 
     override fun onResume(){
@@ -288,22 +307,22 @@ class MainActivity : AppCompatActivity() {
         //option 값 1.시간제한 셋팅 2.셀카제한 3.앱제한 4.시간 5.분 6.초 7.초기화 시 8.초기화 분
         val optionValue = dbHelper.getSettings()
         if(optionValue[0] == 1){//시간 제한이 걸려 있을 때
-            signTime.setText("남은 시간")
+            signTime.text = "남은 시간"
             val limitTime = optionValue[3]*3600 + optionValue[4]*60 + optionValue[5]
             val leftTime = limitTime - spentTime.toInt()
             if(leftTime > 0){//시간이 남아 있다면
-                leftTimeTextview.setText(makeStringTime(leftTime))
+                leftTimeTextview.text = makeStringTime(leftTime)
             }else{//시간을 다 썼다면
-                leftTimeTextview.setText("00:00:00")
+                leftTimeTextview.text = "00:00:00"
             }
         }else{//시간제한이 풀려 있을 때 누적시간을 보여줌
-            signTime.setText("총 사용 시간")
-            leftTimeTextview.setText(makeStringTime(spentTime.toInt()))
+            signTime.text = "총 사용 시간"
+            leftTimeTextview.text = makeStringTime(spentTime.toInt())
         }
 
         if(isServiceRunningCheck()){
             val intent = Intent(applicationContext, TimeMeasureService::class.java)
-            applicationContext.stopService(intent)
+            //applicationContext.stopService(intent)
             Log.d("onResume"," stopService")
         }
     }
