@@ -117,6 +117,9 @@ class OptionActivity: AppCompatActivity() {
             dbHelper.deleteSettings()
             //데이터 가져와서 DB에 삽입
             dbHelper.insertSettings(data)
+            //초기화 시간 얻어오기
+            Hour = data[6]
+            Minute = data[7]
             dbHelper.getSettings()
         }
     }

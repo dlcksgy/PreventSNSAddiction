@@ -106,7 +106,7 @@ class DBHelper(context: Context, name: String, factory: SQLiteDatabase.CursorFac
     }
 
     fun initializeAcTime(data: ArrayList<String>){
-        //누적 시간을 초기화화
+        //누적 시간을 초기화
        val db: SQLiteDatabase = writableDatabase
         for(i: String in data) {
             db.execSQL("UPDATE " + DataBases._TABLENAME_TIME + " SET " +

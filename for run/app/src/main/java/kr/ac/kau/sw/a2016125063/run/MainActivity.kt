@@ -22,9 +22,11 @@ import android.widget.ListView
 import android.widget.TextView
 import com.jjoe64.graphview.DefaultLabelFormatter
 import com.jjoe64.graphview.GraphView
+import com.jjoe64.graphview.helper.StaticLabelsFormatter
 import com.jjoe64.graphview.series.DataPoint
 import com.jjoe64.graphview.series.LineGraphSeries
 import java.text.NumberFormat
+import java.text.SimpleDateFormat
 import java.util.*
 
 class MainActivity : AppCompatActivity() {
@@ -169,6 +171,23 @@ class MainActivity : AppCompatActivity() {
         spentTime = 0L
         //일단은 acTime에 package이름을 넣어 정렬
         appDataList.sortBy { it.accumulatedTime }
+        /*
+        val limitList = dbHelper.getLimitation()
+        val limitListSize = limitList.size
+        limitList.sort()
+        var dataIndex: Int = appDataList.size-1; var limitIndex: Int = limitListSize-1
+        while(dataIndex >= 0 && limitIndex >=0){
+            if(limitListSize == 0) break
+            if(appDataList[dataIndex].appName == limitList[limitIndex]){
+                val acTime = dbHelper.getTime(appDataList[dataIndex].accumulatedTime!!)
+                appDataList[dataIndex].accumulatedTime = makeStringTime(acTime)
+                sortedList.add(appDataList[dataIndex])
+                limitIndex -= 1
+            }
+            dataIndex -= 1
+        }
+        */
+
         for(app in appDataList){
             val acTime = dbHelper.getTime(app.accumulatedTime!!)
             if(acTime != 0){//저장된 시간이 0이 아닐 때
@@ -225,7 +244,7 @@ class MainActivity : AppCompatActivity() {
         //타이틀바 없애기
         //출처: http://commin.tistory.com/63 [Commin의 일상코딩]
         setContentView(R.layout.activity_main)
-//나중에 삭제해야함
+        //나중에 삭제해야함
         if(isServiceRunningCheck() == false) {
             val i = Intent(applicationContext, TimeMeasureService::class.java)
             //테스트 단계니깐 적용
@@ -261,27 +280,48 @@ class MainActivity : AppCompatActivity() {
         if(dbHelper.getHourTimeElementCount() == 0){
             dbHelper.initializeHourTime()
         }
-        val hourData = dbHelper.getAllHourTime()
 
+        //그래프 데이터
+        val hourData = dbHelper.getAllHourTime()
         //시간마다 저장된 배열을 사용한다.
         val graph = findViewById<GraphView>(R.id.graph)
-        /*val data = Array<DataPoint>(24, {i -> DataPoint(i.toDouble(),(usedTime((24-i)*60*60*1000L)/1000/60L).toDouble()) })
-        for(i:Int in 0..23){
-            data[i] = DataPoint(i.toDouble(),hourData[i].toDouble())
-        }
-        */
-        val data = Array<DataPoint>(24, {i -> DataPoint(i.toDouble(), hourData[i].toDouble())})
-        //val data = Array<DataPoint>(24, {i -> DataPoint(i.toDouble(),(hourData[i]).toDouble()) })
-        var series: LineGraphSeries<DataPoint> = LineGraphSeries(data)
-        series.isDrawDataPoints = true
-        series.dataPointsRadius = 8F
-        graph.addSeries(series)
-//그래프 모양 수정 필요
-        graph.gridLabelRenderer.labelFormatter = object: DefaultLabelFormatter() {
-            override fun formatLabel(value: Double, isValueX: Boolean): String {
-                return super.formatLabel(value, isValueX)
+        var data = Array<DataPoint>(24,{i-> DataPoint(0.0,0.0) })
+        //지금 시각 가져오기
+        var date = Date()
+        val sdf_h = SimpleDateFormat("H").format(date).toInt()
+        println("sdf_h == ${sdf_h}")
+        for(i:Int in 23 downTo 0){
+            if(i - sdf_h > 0){
+                data[i-sdf_h-1] = DataPoint((i-sdf_h-1).toDouble(), (hourData[i].toDouble())/3600)
+            }else{
+                data[i-sdf_h+23] = DataPoint((i-sdf_h+23).toDouble(), (hourData[i].toDouble())/3600)
             }
         }
+        data[23] = DataPoint(23.0, (dbHelper.getTimeSum().toDouble())/3600)
+        //그래프 모양
+        //출처: http://www.android-graphview.org/
+        var series: LineGraphSeries<DataPoint> = LineGraphSeries(data)
+        series.isDrawDataPoints = true
+        series.dataPointsRadius = 5F
+        graph.addSeries(series)
+        graph.viewport.isXAxisBoundsManual = true
+        graph.viewport.setMinX(0.0)
+        graph.viewport.setMaxX(24.1)
+        graph.viewport.isYAxisBoundsManual = true
+        graph.viewport.setMinY(0.0)
+        graph.viewport.setMaxY((hourData.max()!!.toDouble())/3600)
+        //graph.gridLabelRenderer.horizontalAxisTitle = "시간 전"
+        //graph.gridLabelRenderer.horizontalAxisTitleTextSize = 40.0f
+
+        //그래프의 라벨 값을 바꾸기
+        //출처: http://www.android-graphview.org/static-labels/
+        val staticLabelsFormatter: StaticLabelsFormatter = StaticLabelsFormatter(graph)
+        val horizontalArray = arrayOf("","")
+        staticLabelsFormatter.setHorizontalLabels(horizontalArray)
+        //val verticalArray = Array<String>((hourData.max()!!.toDouble()/3600).toInt()*2+1, {i -> (0.5*i).toString()})
+        //staticLabelsFormatter.setVerticalLabels(verticalArray)
+        graph.gridLabelRenderer.labelFormatter = staticLabelsFormatter
+
     }
 
     override fun onResume(){

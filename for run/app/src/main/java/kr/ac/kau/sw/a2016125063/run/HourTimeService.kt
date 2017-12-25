@@ -20,8 +20,8 @@ class HourTimeService: Service() {
         super.onCreate()
         Log.d("HourTimeService","onCreate")
         val dbHelper = DBHelper(this.baseContext, "Settings.db", null, 1)
-        val time = hourMinute()
-        dbHelper.updateHourTime(Pair(time.second, dbHelper.getTimeSum()))
+        val time = hour()
+        dbHelper.updateHourTime(Pair(time, dbHelper.getTimeSum()))
         println("updatedTime == "+dbHelper.getTimeSum())
     }
 
@@ -32,15 +32,11 @@ class HourTimeService: Service() {
 
     //현재 시간 출력하기
     //출처: https://medium.com/@peteryun/android-how-to-print-current-date-and-time-in-java-45b884917c6f
-    fun hourMinute(): Pair<Int,Int>{
+    fun hour(): Int{
         var date = Date()
-        val sdf_ampm = SimpleDateFormat("a").format(date).toString()
-        val sdf_m = SimpleDateFormat("mm").format(date).toInt()
-        var sdf_h = SimpleDateFormat("hh").format(date).toInt()
-        if(sdf_ampm == "오후") sdf_h += 12
-        if(sdf_h == 12 && sdf_ampm == "오전") sdf_h = 0
-        println("시 = ${sdf_h}, 분 = ${sdf_m}, "+sdf_ampm)
+        val sdf_h = SimpleDateFormat("hh").format(date).toInt()
+        println("hour: 시 = ${sdf_h}")
 
-        return Pair(sdf_m, sdf_h)
+        return sdf_h
     }
 }

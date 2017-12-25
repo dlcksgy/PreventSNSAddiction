@@ -36,6 +36,10 @@ class TimeMeasureService: Service() {//서비스가 죽지 않게 만들기
     val timer = Timer()
     var task: TimerTask? = null
 
+    companion object {
+        var isServiceRunnning: Boolean = false
+    }
+
     override fun onBind(intent: Intent?): IBinder? {
         return null
     }
@@ -74,6 +78,7 @@ class TimeMeasureService: Service() {//서비스가 죽지 않게 만들기
                             Log.d("BroadcastReceiver","it's time to initialize")
                         }
                     }
+                    println("hour = ${time.second}, minute = ${time.first}, OptionHour = ${OptionActivity.Hour}, OptionMinute = ${OptionActivity.Minute}")
                     Log.d("BroadcastReceiver","ACTION_TIME_TICK")
                 }
             }
@@ -158,13 +163,17 @@ class TimeMeasureService: Service() {//서비스가 죽지 않게 만들기
             }
         }
         //static 변수로 선언하여 boolean true일내는 작동 안함 false일 때는 등록을 하고 true로 바꿈
-        timer.schedule(task, 0, 1000)  // delay 초 후 run을 실행하고 period/1000초마다 실행
-        //return super.onStartCommand(intent, flags, startId)
+        if(isServiceRunnning == false) {
+            timer.schedule(task, 0, 1000)  // delay 초 후 run을 실행하고 period/1000초마다 실행
+            isServiceRunnning = true
+        }
+
+        return super.onStartCommand(intent, flags, startId)
 
         //서비스 강제종료시 다시 실행시키지 않게하기
         //작동이 잘 안되는 듯 하다.
         //출처: http://blog.naver.com/PostView.nhn?blogId=chazlqhemsks&logNo=10184226234&parentCategoryNo=&categoryNo=83&viewDate=&isShowPopularPosts=false&from=postView
-        return Service.START_NOT_STICKY
+        //return Service.START_NOT_STICKY
     }
 
     override fun stopService(name: Intent?): Boolean {
@@ -176,11 +185,11 @@ class TimeMeasureService: Service() {//서비스가 죽지 않게 만들기
 
     override fun onDestroy() {
         super.onDestroy()
-
+        Log.d("TimeMeasureService","onDestroy")
         if(pReceiver != null){
             unregisterReceiver(pReceiver)
         }
-
+        isServiceRunnning = false
     }
 
     //참고 : https://github.com/lizixian18/AppLock/blob/master/app/src/main/java/com/lzx/lock/service/LockService.java
