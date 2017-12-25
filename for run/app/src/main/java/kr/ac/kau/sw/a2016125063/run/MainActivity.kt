@@ -1,5 +1,6 @@
 package kr.ac.kau.sw.a2016125063.preventsnsaddiction
 
+import android.Manifest
 import android.app.Activity
 import android.app.ActivityManager
 import android.app.AppOpsManager
@@ -15,6 +16,8 @@ import android.os.Build
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.provider.Settings
+import android.support.v4.app.ActivityCompat
+import android.support.v4.content.ContextCompat
 import android.util.Log
 import android.widget.Button
 import android.widget.ImageButton
@@ -32,15 +35,17 @@ import java.util.*
 class MainActivity : AppCompatActivity() {
     //custom adapter
     var listViewAdapter: ListViewAdapter? = null
-    companion object {
-        //시간 제한한 앱들의 누적 사용 시간
-        var spentTime: Long = 0
-    }
+    var spentTime: Long = 0  //누적시간
+
+    private val CAMERA_REQUEST = 1
+    private val CAMERA_PERMISSION_CODE = 2
+    private val READ_EXTERNAL_STORAGE = 3
+
 
     fun makeStringTime(sec: Int): String{
         val hour = if(sec/3600 != 0) (sec/3600).toString()+"시간 " else ""
         val minute = if((sec/60)%60 != 0) ((sec/60)%60).toString()+"분 " else ""
-        val second = if(sec%60 != 0) (sec%60).toString()+"초 " else ""
+        val second = if(sec%60 != 0) (sec%60).toString()+"초 " else "0초 "
         val stringTime = hour+minute+second
         return stringTime
     }
@@ -195,11 +200,7 @@ class MainActivity : AppCompatActivity() {
             if(acTime != 0){//저장된 시간이 0이 아닐 때
                 app.accumulatedTime = makeStringTime(acTime)
                 sortedList.add(app)
-                if(OptionActivity.appLimitList.size != 0) {
-                    if (app.appName in OptionActivity.appLimitList) {
-                        spentTime += acTime.toLong()
-                    }
-                }
+                spentTime += acTime.toLong()
             }
         }
 
@@ -258,7 +259,6 @@ class MainActivity : AppCompatActivity() {
             applicationContext.startService(i)
             Log.d("API checking", Build.VERSION.RELEASE.toString())
         }
-
         // GET_USAGE_STATS 권한 확인
         val appOps = this.getSystemService(Context.APP_OPS_SERVICE) as AppOpsManager
         val mode = appOps.checkOpNoThrow(AppOpsManager.OPSTR_GET_USAGE_STATS, android.os.Process.myUid(), this.getPackageName())
@@ -268,11 +268,59 @@ class MainActivity : AppCompatActivity() {
             mode == AppOpsManager.MODE_ALLOWED
         }
         Log.e(ContentValues.TAG, "===== CheckPhoneState isRooting granted = " + granted)
+        // Here, thisActivity is the current activity
+        if (ContextCompat.checkSelfPermission(this,
+                android.Manifest.permission.READ_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            // Should we show an explanation?
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                    Manifest.permission.READ_EXTERNAL_STORAGE)) {
+
+                // Show an expanation to the user *asynchronously* -- don't block
+                // this thread waiting for the user's response! After the user
+                // sees the explanation, try again to request the permission.
+
+            } else {
+
+                // No explanation needed, we can request the permission.
+
+                ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE,Manifest.permission.CAMERA, Manifest.permission.INTERNET), READ_EXTERNAL_STORAGE)
+
+                // MY_PERMISSIONS_REQUEST_READ_CONTACTS is an
+                // app-defined int constant. The callback method gets the
+                // result of the request.
+            }
+
+        }
+        if (ContextCompat.checkSelfPermission(this,
+                android.Manifest.permission.CAMERA)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            // Should we show an explanation?
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                    Manifest.permission.CAMERA)) {
+
+                // Show an expanation to the user *asynchronously* -- don't block
+                // this thread waiting for the user's response! After the user
+                // sees the explanation, try again to request the permission.
+
+            } else {
+
+                // No explanation needed, we can request the permission.
+
+                ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.CAMERA), CAMERA_PERMISSION_CODE)
+
+                // MY_PERMISSIONS_REQUEST_READ_CONTACTS is an
+                // app-defined int constant. The callback method gets the
+                // result of the request.
+            }
+
+        }
         if (granted == false) {
             // 권한이 없을 경우 권한 요구 페이지 이동
-            val intent = Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS)
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            startActivity(intent)
+            val intent = Intent(applicationContext, UsagePermissionActivity::class.java)
+            this.startActivity(intent)
         }
 
         val optionButton = findViewById<ImageButton>(R.id.option_image_button)
@@ -387,5 +435,45 @@ class MainActivity : AppCompatActivity() {
             //applicationContext.startService(i)
             Log.d("API checking", Build.VERSION.RELEASE.toString())
         }
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int,
+                                            permissions: Array<String>, grantResults: IntArray) {
+        if ((checkSelfPermission(android.Manifest.permission.ACCESS_FINE_LOCATION) !== PackageManager.PERMISSION_GRANTED && checkSelfPermission(android.Manifest.permission.ACCESS_COARSE_LOCATION) !== PackageManager.PERMISSION_GRANTED))
+        {
+            return
+        }
+        when (requestCode) {
+            READ_EXTERNAL_STORAGE -> {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.size > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+                    // permission was granted, yay! Do the
+                    // contacts-related task you need to do.
+
+                } else {
+
+                    // permission denied, boo! Disable the
+                    // functionality that depends on this permission.
+                }
+                return
+            }
+
+            CAMERA_PERMISSION_CODE -> {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.size > 0 && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
+
+                    // permission was granted, yay! Do the
+                    // contacts-related task you need to do.
+
+                } else {
+
+                    // permission denied, boo! Disable the
+                    // functionality that depends on this permission.
+                }
+                return
+            }
+        }// other 'case' lines to check for other
+        // permissions this app might request
     }
 }

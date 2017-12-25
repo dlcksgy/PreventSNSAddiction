@@ -7,6 +7,17 @@
     <uses-permission
         android:name="android.permission.PACKAGE_USAGE_STATS"
         tools:ignore="ProtectedPermissions" />
+    <uses-permission android:name="android.permission.SEND_SMS" />
+
+    <uses-feature android:name="android.hardware.camera" />
+    <uses-feature android:name="android.hardware.camera.autofocus" />
+    <uses-feature android:name="android.hardware.camera2" />
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+
 
     <application
         android:allowBackup="true"
@@ -31,6 +42,13 @@
         <activity
             android:name=".OptionActivity"
             android:screenOrientation="portrait" />
+        <activity
+            android:theme="@android:style/Theme.Dialog"
+            android:name=".UsagePermissionActivity" />
+        <activity
+            android:name=".CameraActivity"
+            android:theme="@android:style/Theme.Dialog"
+            ></activity>
 
         <service android:name=".TimeMeasureService" />
         <service android:name=".HourTimeService"/>
