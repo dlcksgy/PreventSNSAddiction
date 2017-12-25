@@ -103,7 +103,7 @@ class MainActivity : AppCompatActivity() {
 
 
 
-        cameraButton.setOnClickListener {
+        cameraButton.setOnClickListener {v ->
 
             shouldShowRequestPermissionRationale(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
             intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
@@ -111,14 +111,14 @@ class MainActivity : AppCompatActivity() {
 
         }
 
-        serviceButton.setOnClickListener {
+        serviceButton.setOnClickListener { v ->
             Log.d("ServiceButton : ", "OnClickListener")
-            val intent = Intent(applicationContext, UsageService::class.java)
+            val intent = Intent(applicationContext, CameraService::class.java)
             startService(intent)
         }
 
 
-        appLockServiceButton.setOnClickListener {
+        appLockServiceButton.setOnClickListener { v->
 
 
             //canDrowOverlays 권한 확인
@@ -149,6 +149,10 @@ class MainActivity : AppCompatActivity() {
 
     override fun onRequestPermissionsResult(requestCode: Int,
                                             permissions: Array<String>, grantResults: IntArray) {
+        if ((checkSelfPermission(android.Manifest.permission.ACCESS_FINE_LOCATION) !== PackageManager.PERMISSION_GRANTED && checkSelfPermission(android.Manifest.permission.ACCESS_COARSE_LOCATION) !== PackageManager.PERMISSION_GRANTED))
+        {
+            return
+        }
         when (requestCode) {
             READ_EXTERNAL_STORAGE -> {
                 // If request is cancelled, the result arrays are empty.

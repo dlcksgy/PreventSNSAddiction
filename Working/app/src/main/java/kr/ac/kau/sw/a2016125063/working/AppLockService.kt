@@ -135,7 +135,6 @@ class AppLockService : Service(){
 
         return ""
     }
-
     //위와 아래의 함수는 거의 같은 역할을 하는 함수임.
 
 
@@ -161,13 +160,6 @@ class AppLockService : Service(){
         }
         return arrayOf<String>(packageNameByUsageStats, classByUsageStats)
     }
-
-
-
-
-
-
-
 }
 
 

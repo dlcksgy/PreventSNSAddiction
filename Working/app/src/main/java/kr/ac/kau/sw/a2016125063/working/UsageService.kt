@@ -30,25 +30,6 @@ class UsageService : Service(){
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
 
-        // GET_USAGE_STATS 권한 확인
-        var granted = false
-        val appOps = this.getSystemService(Context.APP_OPS_SERVICE) as AppOpsManager
-        val mode = appOps.checkOpNoThrow(AppOpsManager.OPSTR_GET_USAGE_STATS, android.os.Process.myUid(), this.getPackageName())
-
-        if (mode == AppOpsManager.MODE_DEFAULT) {
-            granted = this.checkCallingOrSelfPermission(android.Manifest.permission.PACKAGE_USAGE_STATS) === PackageManager.PERMISSION_GRANTED
-        } else {
-            granted = mode == AppOpsManager.MODE_ALLOWED
-        }
-
-        Log.e(TAG, "===== CheckPhoneState isRooting granted = " + granted)
-
-        if (granted == false) {
-            // 권한이 없을 경우 권한 요구 페이지 이동
-            val intent = Intent(android.provider.Settings.ACTION_USAGE_ACCESS_SETTINGS)
-            this.startActivity(intent)
-        }
-
         if (!false) {
             // 기타 프로세스 목록 확인
             val usage = this.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
