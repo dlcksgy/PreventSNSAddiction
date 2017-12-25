@@ -27,10 +27,11 @@ class TimeMeasureService: Service() {//서비스가 죽지 않게 만들기
     private val handler = object : Handler() {
         override fun handleMessage(msg: Message) {
             if(msg.arg1 == 0){
-                //Toast.makeText(applicationContext, "빼애애애애애애애애애애애애애액", Toast.LENGTH_LONG).show()
+                Toast.makeText(applicationContext, "지나친 휴대폰사용은\n" +
+                        " 정신건강에 해롭습니다.", Toast.LENGTH_LONG).show()
             }
             if (msg.arg1 == 1) {
-                Toast.makeText(applicationContext, "빼애애애애애애애애애애애애애액", Toast.LENGTH_LONG).show()
+                Toast.makeText(applicationContext, "지나친 휴대폰사용은\n 정신건강에 해롭습니다.", Toast.LENGTH_LONG).show()
             }
         }
     }
@@ -164,9 +165,12 @@ class TimeMeasureService: Service() {//서비스가 죽지 않게 만들기
                             //출처//http://theeye.pe.kr/archives/1298
                             println("usedSec = ${OptionActivity.usedSec}, timeSec = ${OptionActivity.timeSec}")
 
+                            if(OptionActivity.usedSec%5 == 0){   //5분 마다 경고메시지
+                                handler.sendMessage(msg)
+                            }
                             if(OptionActivity.usedSec - OptionActivity.timeSec > 0) {
                                 if(OptionActivity.camera == 1 && !timeOver){//셀카 설정이 되어있을 때
-                                    timeOver = true
+                                    //timeOver = true
                                     val intent = Intent(applicationContext,CameraActivity::class.java)
                                     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                                     startActivity(intent)

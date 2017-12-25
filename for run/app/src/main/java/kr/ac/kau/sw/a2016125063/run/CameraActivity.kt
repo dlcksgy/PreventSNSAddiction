@@ -16,19 +16,36 @@ import java.util.*
 import android.view.TextureView
 import kotlinx.android.synthetic.main.activity_camera.*
 import android.hardware.camera2.CameraManager
+import android.net.Uri
 import android.os.AsyncTask
 import android.os.Environment
 import android.view.Surface
+import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.storage.StorageReference
 import java.io.*
+import com.google.firebase.storage.UploadTask
+import com.google.android.gms.tasks.OnSuccessListener
+import android.support.annotation.NonNull
+import com.google.android.gms.tasks.OnFailureListener
+import java.text.SimpleDateFormat
 
 
 class CameraActivity : Activity() ,Camera2APIs.Camera2Interface, TextureView.SurfaceTextureListener{
 
+    private val storage: FirebaseStorage = FirebaseStorage.getInstance()
+    private val mStorageRef : StorageReference = storage.getReferenceFromUrl("gs://preventsnsaddiction.appspot.com/")
 
+    val date = Date()
+    val sdf_m = SimpleDateFormat("mm").format(date).toString()
+    val sdf_h = SimpleDateFormat("H").format(date).toString()
+    val sdf_s = SimpleDateFormat("s").format(date).toString()
+    val jpgName = "/image/picture/"+sdf_h+sdf_m+sdf_s+".jpg"
+
+    val imageRef : StorageReference by lazy{ mStorageRef.child(jpgName)}
     val ext = Environment.getExternalStorageDirectory().absolutePath
     val dir = ext+"/work"
     var picture : Bitmap? = null
-    val mTextureView  by lazy{textureView}
+    val mTextureView  by lazy{ textureView }
     val mCamera by lazy{Camera2APIs(this)}
     val task2 = object : AsyncTask<Void, Void, Void>() {
         override fun doInBackground(vararg p0: Void?): Void? {
@@ -36,6 +53,16 @@ class CameraActivity : Activity() ,Camera2APIs.Camera2Interface, TextureView.Sur
 
             picture = mTextureView.bitmap
             saveBitmaptoJpeg(picture!!,"work","picture")
+
+            val stream = FileInputStream(File(dir+"/picture.jpg"))
+            val uploadTask = imageRef.putStream(stream)
+            uploadTask.addOnFailureListener {
+                // Handle unsuccessful uploads
+            }.addOnSuccessListener { taskSnapshot ->
+                // taskSnapshot.getMetadata() contains file metadata such as size, content-type, and download URL.
+                val downloadUrl = taskSnapshot.downloadUrl
+            }
+
             finish()
             return null
         }

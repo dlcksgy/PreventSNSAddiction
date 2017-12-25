@@ -3,8 +3,11 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/GraphView-4.2.1/GraphView-4.2.1.iml" filepath="$PROJECT_DIR$/GraphView-4.2.1/GraphView-4.2.1.iml" />
+      <module fileurl="file://C:\Users\Arduino\Desktop\Mobile Final\for run\GraphView-4.2.1\GraphView-4.2.1.iml" filepath="C:\Users\Arduino\Desktop\Mobile Final\for run\GraphView-4.2.1\GraphView-4.2.1.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://C:\Users\Arduino\Desktop\Mobile Final\for run\app\app.iml" filepath="C:\Users\Arduino\Desktop\Mobile Final\for run\app\app.iml" />
       <module fileurl="file://$PROJECT_DIR$/for run.iml" filepath="$PROJECT_DIR$/for run.iml" />
+      <module fileurl="file://C:\Users\Arduino\Desktop\Mobile Final\for run\for run.iml" filepath="C:\Users\Arduino\Desktop\Mobile Final\for run\for run.iml" />
     </modules>
   </component>
 </project>
