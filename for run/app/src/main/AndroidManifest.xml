@@ -32,6 +32,10 @@
             android:name=".OptionActivity"
             android:screenOrientation="portrait" />
 
+        <activity
+            android:name=".UsagePermissionActivity"
+            android:theme="@android:style/Theme.Dialog"></activity>
+
         <service android:name=".TimeMeasureService" />
         <service android:name=".HourTimeService"/>
 

@@ -1,5 +1,6 @@
 package kr.ac.kau.sw.a2016125063.preventsnsaddiction
 
+import android.Manifest
 import android.app.Activity
 import android.app.ActivityManager
 import android.app.AppOpsManager
@@ -15,6 +16,8 @@ import android.os.Build
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.provider.Settings
+import android.support.v4.app.ActivityCompat
+import android.support.v4.content.ContextCompat
 import android.util.Log
 import android.widget.Button
 import android.widget.ImageButton
@@ -32,6 +35,9 @@ class MainActivity : AppCompatActivity() {
     var listViewAdapter: ListViewAdapter? = null
     //시간 제한한 앱들의 누적 사용 시간
     var spentTime: Long = 0
+
+    private val CAMERA_PERMISSION_CODE = 2
+    private val READ_EXTERNAL_STORAGE = 3
 
     fun makeStringTime(sec: Int): String{
         val hour = if(sec/3600 != 0) (sec/3600).toString()+"시간 " else ""
@@ -244,9 +250,57 @@ class MainActivity : AppCompatActivity() {
         Log.e(ContentValues.TAG, "===== CheckPhoneState isRooting granted = " + granted)
         if (granted == false) {
             // 권한이 없을 경우 권한 요구 페이지 이동
-            val intent = Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS)
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            startActivity(intent)
+            val intent = Intent(applicationContext, UsagePermissionActivity::class.java)
+            this.startActivity(intent)
+        }
+        // Here, thisActivity is the current activity
+        if (ContextCompat.checkSelfPermission(this,
+                android.Manifest.permission.READ_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            // Should we show an explanation?
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                    Manifest.permission.READ_EXTERNAL_STORAGE)) {
+
+                // Show an expanation to the user *asynchronously* -- don't block
+                // this thread waiting for the user's response! After the user
+                // sees the explanation, try again to request the permission.
+
+            } else {
+
+                // No explanation needed, we can request the permission.
+
+                ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), READ_EXTERNAL_STORAGE)
+
+                // MY_PERMISSIONS_REQUEST_READ_CONTACTS is an
+                // app-defined int constant. The callback method gets the
+                // result of the request.
+            }
+
+        }
+        if (ContextCompat.checkSelfPermission(this,
+                android.Manifest.permission.CAMERA)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            // Should we show an explanation?
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                    Manifest.permission.CAMERA)) {
+
+                // Show an expanation to the user *asynchronously* -- don't block
+                // this thread waiting for the user's response! After the user
+                // sees the explanation, try again to request the permission.
+
+            } else {
+
+                // No explanation needed, we can request the permission.
+
+                ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.CAMERA), CAMERA_PERMISSION_CODE)
+
+                // MY_PERMISSIONS_REQUEST_READ_CONTACTS is an
+                // app-defined int constant. The callback method gets the
+                // result of the request.
+            }
+
         }
 
         val optionButton = findViewById<ImageButton>(R.id.option_image_button)

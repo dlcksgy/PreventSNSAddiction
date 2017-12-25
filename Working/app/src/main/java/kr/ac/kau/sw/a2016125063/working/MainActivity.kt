@@ -2,29 +2,18 @@ package kr.ac.kau.sw.a2016125063.working
 
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
-import android.content.Context.APP_OPS_SERVICE
-import android.R.attr.mode
 import android.content.Intent
 import android.provider.MediaStore
 import kotlinx.android.synthetic.main.activity_main.*
-import android.R.attr.data
 import android.app.AppOpsManager
 import android.content.ContentValues
 import android.content.Context
 import android.content.pm.PackageManager
-import android.os.Build
 import android.util.Log
-import kr.ac.kau.sw.a2016125063.working.ActivityManagerService
-import kr.ac.kau.sw.a2016125063.working.UsageService
-import kr.ac.kau.sw.a2016125063.working.R.id.*
-import java.util.jar.Manifest
-import android.provider.Settings.ACTION_MANAGE_OVERLAY_PERMISSION
 import android.app.Activity
-import android.annotation.TargetApi
 import android.app.ActivityManager
 import android.net.Uri
 import android.provider.Settings
-import android.support.v4.app.ActivityCompat
 import android.support.v4.app.ActivityCompat.*
 import android.support.v4.content.ContextCompat
 
@@ -54,7 +43,7 @@ class MainActivity : AppCompatActivity() {
 
         if (granted == false) {
             // 권한이 없을 경우 권한 요구 페이지 이동
-            val intent = Intent(android.provider.Settings.ACTION_USAGE_ACCESS_SETTINGS)
+            val intent = Intent(applicationContext, UsagePermissionActivity::class.java)
             this.startActivity(intent)
         }
 
@@ -113,22 +102,23 @@ class MainActivity : AppCompatActivity() {
 
 
 
-        cameraButton.setOnClickListener{
+
+        cameraButton.setOnClickListener {
 
             shouldShowRequestPermissionRationale(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
             intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-            startActivityForResult(intent,CAMERA_REQUEST)
+            startActivityForResult(intent, CAMERA_REQUEST)
 
         }
 
-        serviceButton.setOnClickListener{
-            Log.d("ServiceButton : ","OnClickListener")
+        serviceButton.setOnClickListener {
+            Log.d("ServiceButton : ", "OnClickListener")
             val intent = Intent(applicationContext, UsageService::class.java)
             startService(intent)
         }
 
 
-        appLockServiceButton.setOnClickListener{
+        appLockServiceButton.setOnClickListener {
 
 
             //canDrowOverlays 권한 확인
@@ -139,7 +129,7 @@ class MainActivity : AppCompatActivity() {
             }
 
 
-            Log.d("LockButton : ","OnClickListener")
+            Log.d("LockButton : ", "OnClickListener")
             val intent = Intent(applicationContext, AppLockService::class.java)
             startService(intent)
         }
@@ -193,12 +183,10 @@ class MainActivity : AppCompatActivity() {
         // permissions this app might request
     }
 
-    fun isServiceRunningCheck(serviceName : String):Boolean {
+    fun isServiceRunningCheck(serviceName: String): Boolean {
         val manager = this.getSystemService(Activity.ACTIVITY_SERVICE) as ActivityManager
-        for (service in manager.getRunningServices(Integer.MAX_VALUE))
-        {
-            if (serviceName == service.service.getClassName())
-            {
+        for (service in manager.getRunningServices(Integer.MAX_VALUE)) {
+            if (serviceName == service.service.getClassName()) {
                 return true
             }
         }
@@ -206,6 +194,4 @@ class MainActivity : AppCompatActivity() {
     }
 
     //출처: http://itmir.tistory.com/326 [미르의 IT 정복기]
-
-
 }
