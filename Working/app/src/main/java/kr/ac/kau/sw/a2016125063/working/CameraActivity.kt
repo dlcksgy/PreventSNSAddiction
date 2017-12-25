@@ -41,12 +41,40 @@ class CameraActivity : Activity() ,Camera2APIs.Camera2Interface, TextureView.Sur
             openCamera()
         } else {
             mTextureView.surfaceTextureListener = this
-            mTextureView.bitmap
-        
-
-
         }
 
+    }
+
+    override fun onStart() {
+
+        if (mTextureView.isAvailable) {
+            openCamera()
+        } else {
+            mTextureView.surfaceTextureListener = this
+            mTextureView.bitmap
+        }
+        super.onStart()
+
+    }
+
+    override fun onStop() {
+
+        if (mTextureView.isAvailable) {
+            openCamera()
+        } else {
+            mTextureView.surfaceTextureListener = this
+        }
+        super.onStop()
+    }
+
+    override fun onRestart() {
+
+        if (mTextureView.isAvailable) {
+            openCamera()
+        } else {
+            mTextureView.surfaceTextureListener = this
+        }
+    super.onRestart()
     }
 
     fun openCamera(){
@@ -70,11 +98,13 @@ class CameraActivity : Activity() ,Camera2APIs.Camera2Interface, TextureView.Sur
     }
 
     override fun onSurfaceTextureDestroyed(p0: SurfaceTexture?): Boolean {
+        finish()
         return true
     }
 
     override fun onSurfaceTextureAvailable(p0: SurfaceTexture?, p1: Int, p2: Int) {
         mTextureView.setSurfaceTextureListener(this);
+        openCamera()
     }
 
     //back버튼을 눌러도 안꺼지도록 override해준다.
