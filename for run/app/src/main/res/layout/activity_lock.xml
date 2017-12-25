@@ -4,6 +4,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="kr.ac.kau.sw.a2016125063.run.LockActivity">
+    tools:context="kr.ac.kau.sw.a2016125063.preventsnsaddiction.LockActivity">
 
 </android.support.constraint.ConstraintLayout>

@@ -105,6 +105,17 @@ class DBHelper(context: Context, name: String, factory: SQLiteDatabase.CursorFac
         db.close()
     }
 
+    fun initializeAcTime(data: ArrayList<String>){
+        //누적 시간을 초기화화
+       val db: SQLiteDatabase = writableDatabase
+        for(i: String in data) {
+            db.execSQL("UPDATE " + DataBases._TABLENAME_TIME + " SET " +
+                    DataBases.acTime + " = " + 0 + " WHERE " + DataBases.appNameTime + " = '" + i + "';")
+        }
+        Log.d("initializeTime","trying")
+        db.close()
+    }
+
     fun getTime(pakageName: String): Int{
         val db: SQLiteDatabase = readableDatabase
         var cursor: Cursor = db.rawQuery("SELECT "+DataBases.acTime+" FROM "+DataBases._TABLENAME_TIME+

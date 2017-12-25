@@ -59,14 +59,21 @@ class TimeMeasureService: Service() {//서비스가 죽지 않게 만들기
                         //val dbHelper = DBHelper(context!!, "Settings.db", null, 1)
                         //dbHelper.updateHourTime(Pair(time.second, dbHelper.getTimeSum()))
                         //println("updatedTime == "+dbHelper.getTimeSum())
-                        //mDBTask.execute()
                         val hourTimeIntent = Intent(context, HourTimeService::class.java)
                         hourTimeIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                         applicationContext.startService(hourTimeIntent)
                         applicationContext.stopService(hourTimeIntent)
                     }
                     //내가 정한 시간에 시간이 초기화 된다.
-
+                    if(time.second == OptionActivity.Hour){//초기화 시가 같을 때
+                        if(time.first == OptionActivity.Minute){//초기화 분이 같을 때
+                            val initailzeAcTimeIntent = Intent(context, initializeService::class.java)
+                            initailzeAcTimeIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                            applicationContext.startService(initailzeAcTimeIntent)
+                            applicationContext.stopService(initailzeAcTimeIntent)
+                            Log.d("BroadcastReceiver","it's time to initialize")
+                        }
+                    }
                     Log.d("BroadcastReceiver","ACTION_TIME_TICK")
                 }
             }
@@ -150,6 +157,7 @@ class TimeMeasureService: Service() {//서비스가 죽지 않게 만들기
                 preScreenOn = nowScreenOn
             }
         }
+        //static 변수로 선언하여 boolean true일내는 작동 안함 false일 때는 등록을 하고 true로 바꿈
         timer.schedule(task, 0, 1000)  // delay 초 후 run을 실행하고 period/1000초마다 실행
         //return super.onStartCommand(intent, flags, startId)
 

@@ -25,6 +25,8 @@ class OptionActivity: AppCompatActivity() {
     companion object {
         var appLimitList = ArrayList<String>()//앱 제한 목록 배열
         var timeLimitSetting: Int = 0//시간 제한 설정
+        var Hour: Int = 0//초기화 시 설정
+        var Minute: Int = 0//초기화 분 설정
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -164,6 +166,9 @@ class OptionActivity: AppCompatActivity() {
         //설정 셋팅
         timeLimitSetting = data[0]
 
+        //초기화 시간 얻어오기
+        Hour = data[6]
+        Minute = data[7]
         //백버튼 막기
         //출처// http://migom.tistory.com/14
         if(data[3] >= 24 || data[4] >= 60 || data[5] >= 60){//설정할 수 없는 시간
@@ -249,7 +254,7 @@ class OptionActivity: AppCompatActivity() {
         })
         builder.setNegativeButton("취소", null)
         */
-        /*
+
         builder.setPositiveButton("설정", { DialogInterface, Int ->
             val checkedItems = listView.checkedItemPositions
             val dataSize:Int = appDataList.size-1
@@ -269,17 +274,19 @@ class OptionActivity: AppCompatActivity() {
             appLimitList = limitPackageList //앱 제한 서비스에서 사용될 것.
             Log.d("limit app count",dbHelper.getLimitElementCount().toString())
         })
-        */
+
+        /*
         builder.setPositiveButton("설정", object: DialogInterface.OnClickListener{
             override fun onClick(p0: DialogInterface?, p1: Int) {
             }
         })
+        */
         builder.setNegativeButton("취소",null)
         builder.setNeutralButton("초기화", object: DialogInterface.OnClickListener{
             override fun onClick(p0: DialogInterface?, p1: Int) {
             }
         })
-        builder.setCancelable(false)
+        //builder.setCancelable(false)
         builder.setView(popUpLayout)
 
         var dialog: AlertDialog = builder.create()
@@ -309,6 +316,7 @@ class OptionActivity: AppCompatActivity() {
             }
         })
         */
+        /*
         dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
             val checkedItems = listView.checkedItemPositions
             val dataSize:Int = appDataList.size-1
@@ -328,6 +336,7 @@ class OptionActivity: AppCompatActivity() {
             appLimitList = limitPackageList //앱 제한 서비스에서 사용될 것.
             Log.d("limit app count",dbHelper.getLimitElementCount().toString())
         }
+        */
 
         dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setOnClickListener {
             for(i:Int in 0..appDataList.size-1){

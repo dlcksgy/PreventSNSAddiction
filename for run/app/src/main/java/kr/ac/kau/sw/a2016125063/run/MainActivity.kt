@@ -154,6 +154,7 @@ class MainActivity : AppCompatActivity() {
         //핸드폰에 설치된 앱의 아이콘과 앱이름, 패키지명 가져오기
         for(app:ApplicationInfo in packs){
             appDataList.add(ListViewItem(app.loadIcon(pm), app.loadLabel(pm).toString(), app.packageName.toString()))
+            println("tableAndItem2 --> "+app.packageName.toString())
         }
 
         //time table이 없으면 만들고 초기화
@@ -172,8 +173,8 @@ class MainActivity : AppCompatActivity() {
             val acTime = dbHelper.getTime(app.accumulatedTime!!)
             if(acTime != 0){//저장된 시간이 0이 아닐 때
                 app.accumulatedTime = makeStringTime(acTime)
-                spentTime += acTime.toLong()
                 sortedList.add(app)
+                spentTime += acTime.toLong()
             }
         }
 
@@ -264,10 +265,12 @@ class MainActivity : AppCompatActivity() {
 
         //시간마다 저장된 배열을 사용한다.
         val graph = findViewById<GraphView>(R.id.graph)
-        val data = Array<DataPoint>(24, {i -> DataPoint(i.toDouble(),(usedTime((24-i)*60*60*1000L)/1000/60L).toDouble()) })
+        /*val data = Array<DataPoint>(24, {i -> DataPoint(i.toDouble(),(usedTime((24-i)*60*60*1000L)/1000/60L).toDouble()) })
         for(i:Int in 0..23){
             data[i] = DataPoint(i.toDouble(),hourData[i].toDouble())
         }
+        */
+        val data = Array<DataPoint>(24, {i -> DataPoint(i.toDouble(), hourData[i].toDouble())})
         //val data = Array<DataPoint>(24, {i -> DataPoint(i.toDouble(),(hourData[i]).toDouble()) })
         var series: LineGraphSeries<DataPoint> = LineGraphSeries(data)
         series.isDrawDataPoints = true
