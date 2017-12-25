@@ -80,7 +80,7 @@ class Camera2APIs(impl:Camera2Interface) {
             for (cameraId in cameraManager.getCameraIdList())
             {
                 val characteristics = cameraManager.getCameraCharacteristics(cameraId)
-                if (characteristics.get(CameraCharacteristics.LENS_FACING) === CameraCharacteristics.LENS_FACING_BACK)
+                if (characteristics.get(CameraCharacteristics.LENS_FACING) === CameraCharacteristics.LENS_FACING_FRONT)
                 {
                     val map = characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)
                     val sizes = map.getOutputSizes(SurfaceTexture::class.java)

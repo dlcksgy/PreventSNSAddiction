@@ -37,15 +37,12 @@ class CameraService : Service(){
         super.onCreate()
         Log.d("CAmeraService","onCreate")
         task.execute()
-        super.onDestroy()
+
 
 
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-
-        intent
-
 
         return super.onStartCommand(intent, flags, startId)
     }
