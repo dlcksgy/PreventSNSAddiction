@@ -27,6 +27,9 @@ class OptionActivity: AppCompatActivity() {
         var timeLimitSetting: Int = 0//시간 제한 설정
         var Hour: Int = 0//초기화 시 설정
         var Minute: Int = 0//초기화 분 설정
+        var timeSec: Int = 0//내가 설정한 제한시간을 초로 바꾼 것
+        var usedSec: Int = 0//내가 지금까지 사용한 시간
+        var camera: Int = 0//카메라 설정 여부
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -113,6 +116,7 @@ class OptionActivity: AppCompatActivity() {
             if(data[4] >= 60) data[4] = 0
             if(data[5] >= 60) data[5] = 0
 
+            timeSec = data[3]*3600 + data[4]*60 + data[5]
             //기존 데이터 삭제
             dbHelper.deleteSettings()
             //데이터 가져와서 DB에 삽입
@@ -120,6 +124,8 @@ class OptionActivity: AppCompatActivity() {
             //초기화 시간 얻어오기
             Hour = data[6]
             Minute = data[7]
+            //카메라 설정 여부
+            camera = data[1]
             dbHelper.getSettings()
         }
     }
@@ -168,6 +174,8 @@ class OptionActivity: AppCompatActivity() {
 
         //설정 셋팅
         timeLimitSetting = data[0]
+        //카메라 설정 여부
+        camera = data[1]
 
         //초기화 시간 얻어오기
         Hour = data[6]
@@ -181,6 +189,7 @@ class OptionActivity: AppCompatActivity() {
             toast.setGravity(Gravity.CENTER, 0, 0)
             toast.show()
         }else{
+            timeSec = data[3]*3600 + data[4]*60 + data[5]
             super.onBackPressed()
         }
     }

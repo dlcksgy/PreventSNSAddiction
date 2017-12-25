@@ -26,6 +26,7 @@ class TimeMeasureService: Service() {//서비스가 죽지 않게 만들기
     private val handler = object : Handler() {
         override fun handleMessage(msg: Message) {
             if(msg.arg1 == 0){
+                //Toast.makeText(applicationContext, "빼애애애애애애애애애애애애애액", Toast.LENGTH_LONG).show()
             }
             if (msg.arg1 == 1) {
                 Toast.makeText(applicationContext, "빼애애애애애애애애애애애애애액", Toast.LENGTH_LONG).show()
@@ -100,6 +101,7 @@ class TimeMeasureService: Service() {//서비스가 죽지 않게 만들기
         var time: Int = 0//어플시작 시간 측정
         var app: String = ""//어플 관리
         val manager: ActivityManager = this.getSystemService(Activity.ACTIVITY_SERVICE) as ActivityManager//서비스 모니터용
+
         //인텐드 각종 플래그 태그들
         //출처//http://theeye.pe.kr/archives/1298
         val lockIntent: Intent = Intent(applicationContext, LockActivity::class.java)
@@ -145,15 +147,33 @@ class TimeMeasureService: Service() {//서비스가 죽지 않게 만들기
                         //스레드에서 토스트메시지를 직접 띄울 수 없기 때문에 핸들러를 이용
                         // 출처 : https://stackoverflow.com/questions/7185942/error-while-dispaying-an-toast-message-cant-create-handler-inside-thread-that
                         if(OptionActivity.appLimitList.indexOf(app) != -1) {//제한된 앱을 사용중일 때
+                            //시간 제한 설정에 따라 락이 걸리고 안걸리고
+                            //시간이 넘어갔을 때만 꺼지게 하기
                             val msg = handler.obtainMessage()
                             msg.arg1 = OptionActivity.timeLimitSetting
                             handler.sendMessage(msg)
-                            startActivity(lockIntent)
+                            OptionActivity.usedSec += 1
+                            //인텐드 각종 플래그 태그들
+                            //출처//http://theeye.pe.kr/archives/1298
+                            println("usedSec = ${OptionActivity.usedSec}, timeSec = ${OptionActivity.timeSec}")
+
+                            if(OptionActivity.usedSec - OptionActivity.timeSec > 0) {
+                                if(OptionActivity.timeLimitSetting == 1) {
+                                    //사용 가능 시간이 지났을 때 창을 띄워야 함.
+                                    startActivity(lockIntent)
+                                }
+                                if(OptionActivity.camera == 1){//셀카 설정이 되어있을 때
+
+                                }
+                            }
                         }
                     }else {//사용중인 앱이 바뀌었을 때
                         if(app != "") {//처음 상태가 아닐때
                             val acTime = dbHelper!!.getTime(app)
                             dbHelper!!.updateTime(Pair(app, acTime + ((System.currentTimeMillis() / 1000).toInt() - time)))
+                            if(OptionActivity.appLimitList.indexOf(app) != -1){//제한된 앱을 사용하다가 바뀌면
+                                OptionActivity.usedSec += ((System.currentTimeMillis() / 1000).toInt() - time)
+                            }
                         }
                         app = topActivity
                         time = (System.currentTimeMillis() / 1000).toInt()

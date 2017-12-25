@@ -32,8 +32,10 @@ import java.util.*
 class MainActivity : AppCompatActivity() {
     //custom adapter
     var listViewAdapter: ListViewAdapter? = null
-    //시간 제한한 앱들의 누적 사용 시간
-    var spentTime: Long = 0
+    companion object {
+        //시간 제한한 앱들의 누적 사용 시간
+        var spentTime: Long = 0
+    }
 
     fun makeStringTime(sec: Int): String{
         val hour = if(sec/3600 != 0) (sec/3600).toString()+"시간 " else ""
@@ -193,7 +195,11 @@ class MainActivity : AppCompatActivity() {
             if(acTime != 0){//저장된 시간이 0이 아닐 때
                 app.accumulatedTime = makeStringTime(acTime)
                 sortedList.add(app)
-                spentTime += acTime.toLong()
+                if(OptionActivity.appLimitList.size != 0) {
+                    if (app.appName in OptionActivity.appLimitList) {
+                        spentTime += acTime.toLong()
+                    }
+                }
             }
         }
 
